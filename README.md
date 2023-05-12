@@ -5,11 +5,11 @@
     <img src="https://www.zscaler.com/themes/custom/zscaler/logo.svg" alt="Zscaler logo" title="Zscaler" height="40" width="200" />
 </a>
 
-Zscaler App Connector Azure Terraform Modules
+Zscaler Private Service Edge Azure Terraform Modules
 ===========================================================================================================
 
 ## Description
-This repository contains various modules and deployment configurations that can be used to deploy Zscaler App Connector appliances to securely connect to workloads within Microsoft Azure via the Zscaler Zero Trust Exchange. The examples directory contains complete automation scripts for both greenfield/POV and brownfield/production use.
+This repository contains various modules and deployment configurations that can be used to deploy Zscaler Private Service Edge appliances to securely connect to workloads within Microsoft Azure via the Zscaler Zero Trust Exchange. The examples directory contains complete automation scripts for both greenfield/POV and brownfield/production use.
 
 These deployment templates are intended to be fully functional and self service for both greenfield/pov as well as production use. All modules may also be utilized as design recommendations based on Zscaler's Official [Zero Trust Access to Private Apps in Azure with ZPA](https://help.zscaler.com/downloads/zpa/reference-architecture/zero-trust-access-private-apps-microsoft-azure-zscaler-private-access/Zero-Trust-Access-to-Private-Apps-in-Azure-with-Zscaler-Private-Access.pdf).
 
@@ -31,7 +31,7 @@ Our Deployment scripts are leveraging Terraform v1.1.9 that includes full binary
    1. Application (client) ID
    2. Directory (tenant) ID
    3. Client Secret Value
-3. Azure Region (e.g. westus2) where App Connector resources are to be deployed
+3. Azure Region (e.g. westus2) where Private Service Edge resources are to be deployed
 
 ### Zscaler requirements
 4. A valid Zscaler Private Access subscription and portal access
@@ -39,21 +39,21 @@ Our Deployment scripts are leveraging Terraform v1.1.9 that includes full binary
 - Client ID
 - Client Secret
 - Customer ID
-6. (Optional) An existing App Connector Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Connector Group and Provisioning Key
+6. (Optional) An existing Service Edge Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Service Edge Group and Provisioning Key
 
-See: [Zscaler App Connector Azure Deployment Guide](https://help.zscaler.com/zpa/connector-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
+See: [Zscaler Private Service Edge Azure Deployment Guide](https://help.zscaler.com/zpa/service-edge-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
 
 ## How to deploy
-Provisioning templates are available for customer use/reference to successfully deploy fully operational App Connector appliances once the prerequisites have been completed. Please follow the instructions located in [examples](examples/README.md).
+Provisioning templates are available for customer use/reference to successfully deploy fully operational Private Service Edge appliances once the prerequisites have been completed. Please follow the instructions located in [examples](examples/README.md).
 
 ## Format
 
 This repository follows the [Hashicorp Standard Modules Structure](https://www.terraform.io/registry/modules/publish):
 
-* `modules` - All module resources utilized by and customized specifically for Cloud Connector deployments. The intent is these modules are resusable and functional for any deployment type referencing for both production or lab/testing purposes.
-* `examples` - Zscaler provides fully functional deployment templates utilizing a combination of some or all of the modules published. These can utilized in there entirety or as reference templates for more advanced customers or custom deployments. For novice Terraform users, we also provide a bash script (zsec) that can be run from any Linux/Mac OS or CSP Cloud Shell that walks through all provisioning requirements as well as downloading/running an isolated teraform process. This allows Cloud Connector deployments from any supported client without having to even have Terraform installed or know how the language/syntax for running it.
+* `modules` - All module resources utilized by and customized specifically for Private Service Edge deployments. The intent is these modules are resusable and functional for any deployment type referencing for both production or lab/testing purposes.
+* `examples` - Zscaler provides fully functional deployment templates utilizing a combination of some or all of the modules published. These can utilized in there entirety or as reference templates for more advanced customers or custom deployments. For novice Terraform users, we also provide a bash script (zsec) that can be run from any Linux/Mac OS or CSP Cloud Shell that walks through all provisioning requirements as well as downloading/running an isolated teraform process. This allows Private Service Edge deployments from any supported client without having to even have Terraform installed or know how the language/syntax for running it.
 
 ## Versioning
 
 These modules follow recommended release tagging in [Semantic Versioning](http://semver.org/). You can find each new release,
-along with the changelog, on the GitHub [Releases](https://github.com/zscaler/terraform-aws-cloud-connector-modules/releases) page.
+along with the changelog, on the GitHub [Releases](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/releases) page.
