@@ -41,7 +41,7 @@ if [[ "$oper" == "up" ]]; then
   done
 
     while [ "$deploy" == "greenfield" ]; do
-     read -r -p "Deployment Type: ( base | base_ac ) : " dtype
+     read -r -p "Deployment Type: ( base | base_pse | pse ) : " dtype
 
     case $dtype in
       base|base_ac)
@@ -55,7 +55,7 @@ if [[ "$oper" == "up" ]]; then
   done
 
     while [ "$deploy" == "brownfield" ]; do
-     read -r -p "Deployment Type: ( ac ) : " dtype
+     read -r -p "Deployment Type: ( pse ) : " dtype
 
     case $dtype in
       ac)
@@ -178,7 +178,7 @@ done
 fi
 fi
 
-echo "Checking Azure Environment Variables and App Connector bootstrap requirements... For custom/byo deployments, please stop and refer to the README and terraform.tfvars file instructions"
+echo "Checking Azure Environment Variables and Private Service Edge bootstrap requirements... For custom/byo deployments, please stop and refer to the README and terraform.tfvars file instructions"
 # if .zsacrc is not present we'll assume that Azure env was never set
 if [[ ! -e ./.zsacrc ]]; then
     read -r -p "Enter Azure Subcription ID: " azure_subscription_id
@@ -206,16 +206,16 @@ if [[ ! -e ./.zsacrc ]]; then
     read -r -p "Enter ZPA Customer ID: " zpa_customer_id
     echo "export ZPA_CUSTOMER_ID=\"${zpa_customer_id}\"" >> .zsacrc
 
-    read -r -p "Do you already have an App Connector provisioning key to use? [yes/no] " prov_key_response
+    read -r -p "Do you already have a Service Edge provisioning key to use? [yes/no] " prov_key_response
     case $prov_key_response in
 	yes|y )
-    read -r -p "Enter the name of your existing App Connector provisioning key: " byo_provisioning_key_name
+    read -r -p "Enter the name of your existing Service Edge provisioning key: " byo_provisioning_key_name
     echo "export TF_VAR_byo_provisioning_key=true" >> .zsacrc
     echo "export TF_VAR_byo_provisioning_key_name=${byo_provisioning_key_name}" >> .zsacrc
     break
     ;;
 	no|n )
-    echo "Terraform will be creating a new App Connector Group and provisioning key"
+    echo "Terraform will be creating a new Service Edge Group and provisioning key"
     echo "Before proceeding, make sure you have entered all variable requirements from steps 1 and 2 in $dtype/terraform.tfvars"
     break
     ;;
@@ -275,20 +275,20 @@ while true; do
 psevm_instance_type=${psevm_instance_type_input:-$psevm_instance_type_default}
 case $psevm_instance_type in
 	Standard_D4s_v3|Standard_F4s_v2 )
-    echo "App Connector VM type: ${psevm_instance_type}"
+    echo "Private Service Edge VM type: ${psevm_instance_type}"
     echo "export TF_VAR_psevm_instance_type=${psevm_instance_type}" >> .zsacrc
     break
     ;;
 	*)
-    echo "Invalid App Connector VM type: ${psevm_instance_type}. Please enter an approved VM type"
+    echo "Invalid Private Service Edge  VM type: ${psevm_instance_type}. Please enter an approved VM type"
     esac
 done
 
 pse_count_default=2
-    read -r -p "Enter how many App Connectors to deploy? [Default=$pse_count_default]: " pse_count_input
+    read -r -p "Enter how many Private Service Edges to deploy? [Default=$pse_count_default]: " pse_count_input
 pse_count=${pse_count_input:-$pse_count_default}
 if ((pse_count >= 1 && pse_count <= 20)); then
-    echo "${dtype} will deploy ${pse_count} App Connector in ${azure_location}"
+    echo "${dtype} will deploy ${pse_count} Private Service Edge in ${azure_location}"
     echo "export TF_VAR_pse_count=${pse_count}" >> .zsacrc
 else
     echo "invalid pse_count value. Must be a number between 1 and 20"
@@ -301,7 +301,7 @@ if [[ ${az_supported_regions[*]} =~ $azure_location ]]; then
 echo "Azure region ${azure_location} supports Zones..."
 zones_enabled_default=no
     while true; do
-    read -r -p "Deploy App Connectors in dedicated Availability Zones/subnets? (Enter yes or no) [Default=$zones_enabled_default]: " zones_enabled_input
+    read -r -p "Deploy Private Service Edges in dedicated Availability Zones/subnets? (Enter yes or no) [Default=$zones_enabled_default]: " zones_enabled_input
     zones_enabled=${zones_enabled_input:-$zones_enabled_default}
 case $zones_enabled in
 	yes|y )
@@ -320,7 +320,7 @@ done
 
 if [[ "$zones_enabled" == "yes" || "$zones_enabled" == "y" ]]; then
     echo "Choose zones [1-3] to deploy in... "
-    echo "If deploying only one App Connector, enter yes for only one Zone (1, 2, or 3)"
+    echo "If deploying only one Private Service Edge, enter yes for only one Zone (1, 2, or 3)"
     while true; do
     read -r -p "Zone 1 (yes/no): " zone1_response
 case $zone1_response in
@@ -433,7 +433,7 @@ if [[ "$oper" == "do" ]]; then
 fi
 
 if [[ "$oper" == "up" ]]; then
-    echo "Bringing up App Connector cluster..."
+    echo "Bringing up Private Service Edge cluster..."
     TF_DATA_DIR=../.terraform ./$dir/terraform -chdir="$dtype" init
     if [[ "$AUTO_APPROVE" ]]; then
         TF_DATA_DIR=../.terraform ./$dir/terraform -chdir="$dtype" apply -auto-approve
@@ -442,7 +442,7 @@ if [[ "$oper" == "up" ]]; then
     fi
 
 elif [[ "$oper" == "destroy" ]]; then
-    echo "Destroying App Connector cluster..."
+    echo "Destroying Private Service Edge cluster..."
     TF_DATA_DIR=../.terraform ./$dir/terraform -chdir="$dtype" init
     if [[ "$AUTO_APPROVE" ]]; then
         TF_DATA_DIR=../.terraform ./$dir/terraform -chdir="$dtype" destroy -auto-approve
