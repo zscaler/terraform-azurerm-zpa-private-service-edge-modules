@@ -37,7 +37,7 @@ variable "environment" {
 variable "owner_tag" {
   type        = string
   description = "Customer defined owner tag value. ie: Org, Dept, username, etc."
-  default     = "zsac-admin"
+  default     = "zspse-admin"
 }
 
 variable "tls_key_algorithm" {

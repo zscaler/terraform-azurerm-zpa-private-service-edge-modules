@@ -34,7 +34,7 @@ variable "pse_subnet_id" {
 variable "pse_username" {
   type        = string
   description = "Default Private Service Edge admin/root username"
-  default     = "zsroot"
+  default     = "zpse-admin"
 }
 
 variable "ssh_key" {
@@ -62,26 +62,26 @@ variable "user_data" {
 
 variable "psevm_image_publisher" {
   type        = string
-  description = "Azure Marketplace Zscaler Private Service Edge Image Publisher"
-  default     = "Ntegral"
+  description = "Azure Marketplace CIS CentOS Image Publisher"
+  default     = "center-for-internet-security-inc"
 }
 
 variable "psevm_image_offer" {
   type        = string
-  description = "Azure Marketplace Zscaler Private Service Edge Image Offer"
-  default     = "CentOS"
+  description = "Azure Marketplace CIS CentOS Image Offer"
+  default     = "cis-centos-7-v2-1-1-l1"
 }
 
 variable "psevm_image_sku" {
   type        = string
-  description = "Azure Marketplace Zscaler Private Service Edge Image SKU"
-  default     = "ntg_centos_7"
+  description = "Azure Marketplace CIS CentOS Image SKU"
+  default     = "cis-centos7-l1"
 }
 
 variable "psevm_image_version" {
   type        = string
-  description = "Azure Marketplace Private Service Edge Image Version"
-  default     = "latest"
+  description = "Azure Marketplace CIS CentOS Image Version"
+  default     = "3.1.15"
 }
 
 variable "pse_count" {

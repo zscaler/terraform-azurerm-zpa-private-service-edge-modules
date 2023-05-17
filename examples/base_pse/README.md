@@ -13,8 +13,8 @@ We are leveraging the [Zscaler ZPA Provider](https://github.com/zscaler/terrafor
 
 ### Option 1 (guided):
 Optional: Edit the terraform.tfvars file under your desired deployment type (ie: base_ac) to setup your Service Edge Group (Details are documented inside the file)
-From the examples directory, run the zsac bash script that walks to all required inputs.
-- ./zsac up
+From the examples directory, run the zspse bash script that walks to all required inputs.
+- ./zspse up
 - enter "greenfield"
 - enter "base_ac"
 - follow the remainder of the authentication and configuration input prompts.
@@ -32,8 +32,8 @@ From base_ac directory execute:
 ## How to destroy:
 
 ### Option 1 (guided):
-From the examples directory, run the zsac bash script that walks to all required inputs.
-- ./zsac destroy
+From the examples directory, run the zspse bash script that walks to all required inputs.
+- ./zspse destroy
 
 ### Option 2 (manual):
 From base_ac directory execute:
@@ -93,7 +93,7 @@ From base_ac directory execute:
 | <a name="input_environment"></a> [environment](#input\_environment) | Customer defined environment tag. ie: Dev, QA, Prod, etc. | `string` | `"Development"` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | The name prefix for all your resources | `string` | `"zsdemo"` | no |
 | <a name="input_network_address_space"></a> [network\_address\_space](#input\_network\_address\_space) | VNet IP CIDR Range. All subnet resources that might get created (public, Private Service Edge) are derived from this /16 CIDR. If you require creating a VNet smaller than /16, you may need to explicitly define all other subnets via public\_subnets and pse\_subnets variables | `string` | `"10.1.0.0/16"` | no |
-| <a name="input_owner_tag"></a> [owner\_tag](#input\_owner\_tag) | Customer defined owner tag value. ie: Org, Dept, username, etc. | `string` | `"zsac-admin"` | no |
+| <a name="input_owner_tag"></a> [owner\_tag](#input\_owner\_tag) | Customer defined owner tag value. ie: Org, Dept, username, etc. | `string` | `"zspse-admin"` | no |
 | <a name="input_provisioning_key_association_type"></a> [provisioning\_key\_association\_type](#input\_provisioning\_key\_association\_type) | Specifies the provisioning key type for Private Service Edges or ZPA Private Service Edges. The supported values are CONNECTOR\_GRP and SERVICE\_EDGE\_GRP | `string` | `"SERVICE_EDGE_GRP"` | no |
 | <a name="input_provisioning_key_enabled"></a> [provisioning\_key\_enabled](#input\_provisioning\_key\_enabled) | Whether the provisioning key is enabled or not. Default: true | `bool` | `true` | no |
 | <a name="input_provisioning_key_max_usage"></a> [provisioning\_key\_max\_usage](#input\_provisioning\_key\_max\_usage) | The maximum number of instances where this provisioning key can be used for enrolling an Private Service Edge or Service Edge | `number` | `10` | no |

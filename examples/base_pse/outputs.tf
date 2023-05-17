@@ -9,9 +9,9 @@ scp -i ${var.name_prefix}-key-${random_string.suffix.result}.pem ${var.name_pref
 ssh -i ${var.name_prefix}-key-${random_string.suffix.result}.pem centos@${module.bastion.public_ip}
 
 3) SSH to the Private Service Edge
-ssh -i ${var.name_prefix}-key-${random_string.suffix.result}.pem centos@${module.pse_vm.private_ip[0]} -o "proxycommand ssh -W %h:%p -i ${var.name_prefix}-key-${random_string.suffix.result}.pem centos@${module.bastion.public_ip}"
+ssh -i ${var.name_prefix}-key-${random_string.suffix.result}.pem zpse-admin@${module.pse_vm.private_ip[0]} -o "proxycommand ssh -W %h:%p -i ${var.name_prefix}-key-${random_string.suffix.result}.pem centos@${module.bastion.public_ip}"
 
-All Private Service Edge Management IPs. Replace private IP below with zspse-admin@"ip address" in ssh example command above.
+All Private Service Edge Management IPs. Replace private IP below with "zpse-admin"@"ip address" in ssh example command above.
 ${join("\n", module.pse_vm.private_ip)}
 
 Resource Group:

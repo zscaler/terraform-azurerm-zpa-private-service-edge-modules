@@ -1,8 +1,8 @@
 ## This is only a sample terraform.tfvars file.
 ## Uncomment and change the below variables according to your specific environment
 #####################################################################################################################
-##### Variables 5-13 are populated automically if terraform is ran via ZSAC bash script.   #####
-##### Modifying the variables in this file will override any inputs from ZSAC              #####
+##### Variables 5-13 are populated automically if terraform is ran via zspse bash script.   #####
+##### Modifying the variables in this file will override any inputs from zspse              #####
 #####################################################################################################################
 
 #####################################################################################################################
@@ -57,7 +57,7 @@
 ##### Custom variables. Only change if required for your environment  #####
 #####################################################################################################################
 
-## 5. Azure region where Private Service Edge resources will be deployed. This environment variable is automatically populated if running ZSAC script
+## 5. Azure region where Private Service Edge resources will be deployed. This environment variable is automatically populated if running zspse script
 ##    and thus will override any value set here. Only uncomment and set this value if you are deploying terraform standalone. (Default: westus2)
 
 arm_location = "canadacentral"
@@ -66,7 +66,7 @@ arm_location = "canadacentral"
 ##    (Default: Standard_D4s_v3)
 
 psevm_instance_type = "Standard_D4s_v3"
-#acvm_instance_type                         = "Standard_F4s_v2"
+#psevm_instance_type                         = "Standard_F4s_v2"
 
 ## 7. The number of Private Service Edge appliances to provision. Each incremental Private Service Edge will be created in alternating
 ##     subnets based on the zones or byo_subnet_names variable and loop through for any deployments where ac_count > zones.
@@ -123,7 +123,7 @@ pse_count = 1
 #public_subnets                             = ["10.x.y.z/24","10.x.y.z/24"]
 #ac_subnets                                 = ["10.x.y.z/24","10.x.y.z/24"]
 
-## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zspse-admin")
+## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zpse-admin")
 
 #owner_tag                                  = "username@company.com"
 

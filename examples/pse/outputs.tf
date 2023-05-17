@@ -5,7 +5,7 @@ locals {
 Resource Group:
 ${module.network.resource_group_name}
 
-All Private Service Edges Management IPs. Username "zspse-admin"
+All Private Service Edges Management IPs. Username ""zpse-admin""
 ${join("\n", module.pse_vm.private_ip)}
 
 All NAT GW Public IPs:

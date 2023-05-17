@@ -121,7 +121,7 @@ pse_count = 2
 #public_subnets                             = ["10.x.y.z/24","10.x.y.z/24"]
 #pse_subnets                                 = ["10.x.y.z/24","10.x.y.z/24"]
 
-## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zspse-admin")
+## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zpse-admin")
 
 #owner_tag                                  = "username@company.com"
 
