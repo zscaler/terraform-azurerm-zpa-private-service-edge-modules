@@ -34,7 +34,8 @@
 #pse_group_upgrade_time_in_secs       = "66600"
 #pse_group_override_version_profile   = true
 #pse_group_version_profile_id         = "2"
-#pse_group_dns_query_type             = "IPV4_IPV6"
+#pse_is_public                      = false
+#zpa_trusted_network_name           = "Corporate-Network (zscalertwo.net)"
 
 
 #####################################################################################################################

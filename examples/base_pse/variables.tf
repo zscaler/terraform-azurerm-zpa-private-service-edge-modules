@@ -224,26 +224,11 @@ variable "pse_is_public" {
   default     = false
 }
 
-variable "pse_group_dns_query_type" {
+variable "zpa_trusted_network_name" {
   type        = string
-  description = "Whether to enable IPv4 or IPv6, or both, for DNS resolution of all applications in the Service Edge Group"
-  default     = "IPV4_IPV6"
-
-  validation {
-    condition = (
-      var.pse_group_dns_query_type == "IPV4_IPV6" ||
-      var.pse_group_dns_query_type == "IPV4" ||
-      var.pse_group_dns_query_type == "IPV6"
-    )
-    error_message = "Input pse_group_dns_query_type must be set to an approved value."
-  }
+  description = "To query trusted network that are associated with a specific Zscaler cloud, it is required to append the cloud name to the name of the trusted network. For more details refer to docs: https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network"
+  #default     = "" # a valid example name + cloud >> "Corporate-Network (zscalertwo.net)"
 }
-
-# variable "zpa_trusted_network_name" {
-#   type        = string
-#   description = "To query trusted network that are associated with a specific Zscaler cloud, it is required to append the cloud name to the name of the trusted network. For more details refer to docs: https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network"
-#   #default     = "" # a valid example name + cloud >> "Corporate-Network (zscalertwo.net)"
-# }
 
 variable "provisioning_key_enabled" {
   type        = bool

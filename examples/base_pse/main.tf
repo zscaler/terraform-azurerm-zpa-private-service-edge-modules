@@ -94,7 +94,7 @@ module "zpa_service_edge_group" {
   pse_group_override_version_profile = var.pse_group_override_version_profile
   pse_group_version_profile_id       = var.pse_group_version_profile_id
   pse_is_public                      = var.pse_is_public
-  #zpa_trusted_network_name           = var.zpa_trusted_network_name
+  zpa_trusted_network_name           = var.zpa_trusted_network_name
 }
 
 
