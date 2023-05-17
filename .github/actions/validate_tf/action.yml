@@ -1,12 +1,20 @@
-name: 'validate TF'
-description: 'run all pre-req steps and the actual TF code validation'
+name: 'TF plan/apply'
+description: 'Runs Terraform plan and/or apply for a specified path.'
 inputs:
-  tf_version:  # id of input
-    description: 'TF version used to validate code.'
+  tf_version:
+    description: 'TF version used.'
     required: true
   path:
-    description: 'Path to code that will be validated.'
+    description: 'Path to Terraform module.'
     required: true
+  do_apply:
+    description: When set to true runs also apply
+    type: boolean
+    default: false
+  indepotency:
+    description: When set to true runs plan to on already applied configuration
+    type: boolean
+    default: true
 runs:
   using: "composite"
   steps:
@@ -14,10 +22,60 @@ runs:
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ inputs.tf_version }}
-    - name: run validation for ${{ inputs.path }}
-      run: |
-        cd "$GITHUB_WORKSPACE"/${{ inputs.path }}
-        terraform -version
-        terraform init -backend=false
-        terraform validate
+
+    - name: set UUID value
+      id: uuid
       shell: bash
+      run: echo "::set-output name=uuid::$(uuidgen | tr '[:upper:]' '[:lower:]')"
+
+    - name: login to Azure
+      uses: azure/login@v1
+      with:
+        client-id: ${{ env.ARM_CLIENT_ID }}
+        tenant-id: ${{ env.ARM_TENANT_ID }}
+        subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+
+    - name: run plan
+      id: plan
+      if: ${{ ! inputs.do_apply }}
+      env:
+        TPATH: ${{ inputs.path }}
+        ARM_USE_OIDC: true
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        make plan
+
+    - name: run apply
+      if: inputs.do_apply
+      env:
+        TPATH: ${{ inputs.path }}
+        ARM_USE_OIDC: true
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        make apply
+
+    - name: test indepotency
+      if: inputs.do_apply && inputs.indepotency
+      env:
+        TPATH: ${{ inputs.path }}
+        ARM_USE_OIDC: true
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        make indepotency
+
+    - name: run destroy
+      if: inputs.do_apply && always()
+      env:
+        TPATH: ${{ inputs.path }}
+        ARM_USE_OIDC: true
+        UUID: ${{ steps.uuid.outputs.uuid }}
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE/$TPATH"
+        make destroy
