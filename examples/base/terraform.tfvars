@@ -31,7 +31,7 @@
 
 #public_subnets                             = ["10.x.y.z/24"]
 
-## 3. Tag attribute "Owner" assigned to all resource created. (Default: "zsac-admin")
+## 3. Tag attribute "Owner" assigned to all resource created. (Default: "zspse-admin")
 
 #owner_tag                                  = "username@company.com"
 

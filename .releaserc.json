@@ -1,6 +1,6 @@
 {
   "branches": [
-    "main",
+    "master",
     "develop"
   ],
   "plugins": [
@@ -37,7 +37,7 @@
     [
       "@semantic-release/github",
       {
-        "successComment": ":tada: This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:\n\nThe release is available on [Terraform Registry](https://registry.terraform.io/modules/zscaler/terraform-azurerm-zpa-private-service-edge-modules/azurerm/latest) and [GitHub release](../releases/tag/v${nextRelease.version})\n\n> Posted by [semantic-release](https://github.com/semantic-release/semantic-release) bot"
+        "successComment": ":tada: This ${issue.pull_request ? 'PR is included' : 'issue has been resolved'} in version ${nextRelease.version} :tada:\n\nThe release is available on [Terraform Registry](https://registry.terraform.io/modules/zscaler/zpa-private-service-edge-modules/azurerm/latest) and [GitHub release](../releases/tag/v${nextRelease.version})\n\n> Posted by [semantic-release](https://github.com/semantic-release/semantic-release) bot"
       }
     ]
   ],

@@ -23,18 +23,20 @@
 ##    For any questions populating the below values, please reference:
 ##    https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/zpa_service_edge_group
 
-#pse_group_description                          = "new_group_name"
-#pse_group_enabled                              = true
-#pse_group_country_code                         = "new_group_name"
-#pse_group_latitude                             = "37.3382082"
-#pse_group_longitude                            = "-121.8863286"
-#pse_group_location                             = "San Jose, CA, USA"
-#pse_group_upgrade_day                          = "SUNDAY"
-#pse_group_upgrade_time_in_secs                 = "66600"
-#pse_group_override_version_profile             = true
-#pse_group_version_profile_id                   = "2"
-#pse_is_public                                  = true
-#pse_group_dns_query_type                       = "IPV4_IPV6"
+#pse_group_name                       = "new_group_name"
+#pse_group_description                = "group_description"
+#pse_group_enabled                    = true
+#pse_group_country_code               = "US"
+#pse_group_latitude                   = "37.3382082"
+#pse_group_longitude                  = "-121.8863286"
+#pse_group_location                   = "San Jose, CA, USA"
+#pse_group_upgrade_day                = "SUNDAY"
+#pse_group_upgrade_time_in_secs       = "66600"
+#pse_group_override_version_profile   = true
+#pse_group_version_profile_id         = "2"
+#pse_is_public                      = false
+#zpa_trusted_network_name           = "Corporate-Network (zscalertwo.net)"
+
 
 
 #####################################################################################################################
@@ -121,7 +123,7 @@ pse_count = 2
 #public_subnets                             = ["10.x.y.z/24","10.x.y.z/24"]
 #pse_subnets                                 = ["10.x.y.z/24","10.x.y.z/24"]
 
-## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zspse-admin")
+## 11. Tag attribute "Owner" assigned to all resoure creation. (Default: "zpse-admin")
 
 #owner_tag                                  = "username@company.com"
 

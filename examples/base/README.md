@@ -8,8 +8,8 @@ This deployment type is just for greenfield/POV reference and/or spoke workload 
 ## How to deploy:
 
 ### Option 1 (guided):
-From the examples directory, run the zsac bash script that walks to all required inputs.
-- ./zsac up
+From the examples directory, run the zspse bash script that walks to all required inputs.
+- ./zspse up
 - enter "greenfield"
 - enter "base"
 - follow the remainder of the authentication and configuration input prompts.
@@ -27,8 +27,8 @@ From base directory execute:
 ## How to destroy:
 
 ### Option 1 (guided):
-From the examples directory, run the zsac bash script that walks to all required inputs.
-- ./zsac destroy
+From the examples directory, run the zspse bash script that walks to all required inputs.
+- ./zspse destroy
 
 ### Option 2 (manual):
 From base directory execute:
@@ -79,7 +79,7 @@ From base directory execute:
 | <a name="input_environment"></a> [environment](#input\_environment) | Customer defined environment tag. ie: Dev, QA, Prod, etc. | `string` | `"Development"` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | The name prefix for all your resources | `string` | `"zsdemo"` | no |
 | <a name="input_network_address_space"></a> [network\_address\_space](#input\_network\_address\_space) | VNet IP CIDR Range. All subnet resources that might get created (public, private service edge) are derived from this /16 CIDR. If you require creating a VNet smaller than /16, you may need to explicitly define all other subnets via public\_subnets and pse\_subnets variables | `string` | `"10.1.0.0/16"` | no |
-| <a name="input_owner_tag"></a> [owner\_tag](#input\_owner\_tag) | Customer defined owner tag value. ie: Org, Dept, username, etc. | `string` | `"zsac-admin"` | no |
+| <a name="input_owner_tag"></a> [owner\_tag](#input\_owner\_tag) | Customer defined owner tag value. ie: Org, Dept, username, etc. | `string` | `"zspse-admin"` | no |
 | <a name="input_public_subnets"></a> [public\_subnets](#input\_public\_subnets) | Public/Bastion Subnets to create in VNet. This is only required if you want to override the default subnets that this code creates via network\_address\_space variable. | `list(string)` | `null` | no |
 | <a name="input_tls_key_algorithm"></a> [tls\_key\_algorithm](#input\_tls\_key\_algorithm) | algorithm for tls\_private\_key resource | `string` | `"RSA"` | no |
 | <a name="input_zones"></a> [zones](#input\_zones) | Specify which availability zone(s) to deploy VM resources in if zones\_enabled variable is set to true | `list(string)` | <pre>[<br>  "1"<br>]</pre> | no |

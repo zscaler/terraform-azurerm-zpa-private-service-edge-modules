@@ -52,11 +52,11 @@ No modules.
 | <a name="input_pse_count"></a> [pse\_count](#input\_pse\_count) | The number of Private Service Edges to deploy.  Validation assumes max for /24 subnet but could be smaller or larger as long as subnet can accommodate | `number` | `1` | no |
 | <a name="input_pse_nsg_id"></a> [pse\_nsg\_id](#input\_pse\_nsg\_id) | Private Service Edge management interface nsg id | `list(string)` | n/a | yes |
 | <a name="input_pse_subnet_id"></a> [pse\_subnet\_id](#input\_pse\_subnet\_id) | Private Service Edge subnet id | `list(string)` | n/a | yes |
-| <a name="input_pse_username"></a> [pse\_username](#input\_pse\_username) | Default Private Service Edge admin/root username | `string` | `"zsroot"` | no |
-| <a name="input_psevm_image_offer"></a> [psevm\_image\_offer](#input\_psevm\_image\_offer) | Azure Marketplace Zscaler Private Service Edge Image Offer | `string` | `"CentOS"` | no |
-| <a name="input_psevm_image_publisher"></a> [psevm\_image\_publisher](#input\_psevm\_image\_publisher) | Azure Marketplace Zscaler Private Service Edge Image Publisher | `string` | `"Ntegral"` | no |
-| <a name="input_psevm_image_sku"></a> [psevm\_image\_sku](#input\_psevm\_image\_sku) | Azure Marketplace Zscaler Private Service Edge Image SKU | `string` | `"ntg_centos_7"` | no |
-| <a name="input_psevm_image_version"></a> [psevm\_image\_version](#input\_psevm\_image\_version) | Azure Marketplace Private Service Edge Image Version | `string` | `"latest"` | no |
+| <a name="input_pse_username"></a> [pse\_username](#input\_pse\_username) | Default Private Service Edge admin/root username | `string` | `"zpse-admin"` | no |
+| <a name="input_psevm_image_offer"></a> [psevm\_image\_offer](#input\_psevm\_image\_offer) | Azure Marketplace CIS CentOS Image Offer | `string` | `"cis-centos-7-v2-1-1-l1"` | no |
+| <a name="input_psevm_image_publisher"></a> [psevm\_image\_publisher](#input\_psevm\_image\_publisher) | Azure Marketplace CIS CentOS Image Publisher | `string` | `"center-for-internet-security-inc"` | no |
+| <a name="input_psevm_image_sku"></a> [psevm\_image\_sku](#input\_psevm\_image\_sku) | Azure Marketplace CIS CentOS Image SKU | `string` | `"cis-centos7-l1"` | no |
+| <a name="input_psevm_image_version"></a> [psevm\_image\_version](#input\_psevm\_image\_version) | Azure Marketplace CIS CentOS Image Version | `string` | `"3.1.15"` | no |
 | <a name="input_psevm_instance_type"></a> [psevm\_instance\_type](#input\_psevm\_instance\_type) | Private Service Edge Image size | `string` | `"Standard_D2s_v3"` | no |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | Main Resource Group Name | `string` | n/a | yes |
 | <a name="input_resource_tag"></a> [resource\_tag](#input\_resource\_tag) | A tag to associate to all the AC VM module resources | `string` | `null` | no |
