@@ -1,5 +1,5 @@
 ################################################################################
-# Make sure that Cloud Connector image terms have been accepted
+# Make sure that Private Service Edge image terms have been accepted
 ################################################################################
 resource "azurerm_marketplace_agreement" "zs_image_agreement" {
   offer     = var.psevm_image_offer

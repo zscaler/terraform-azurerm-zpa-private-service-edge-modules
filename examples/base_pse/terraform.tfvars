@@ -35,7 +35,7 @@
 #pse_group_override_version_profile   = true
 #pse_group_version_profile_id         = "2"
 #pse_is_public                      = false
-#zpa_trusted_network_name           = "Corporate-Network (zscalertwo.net)"
+zpa_trusted_network_name = "BDTrustedNetwork03"
 
 
 #####################################################################################################################
@@ -61,7 +61,7 @@
 ## 5. Azure region where Private Service Edge resources will be deployed. This environment variable is automatically populated if running zspse script
 ##    and thus will override any value set here. Only uncomment and set this value if you are deploying terraform standalone. (Default: westus2)
 
-arm_location = "canadacentral"
+arm_location = "eastus"
 
 ## 6. Private Service Edge Azure VM Instance size selection. Uncomment acvm_instance_type line with desired vm size to change.
 ##    (Default: Standard_D4s_v3)

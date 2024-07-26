@@ -18,15 +18,15 @@ az vm image terms accept --urn zscaler:zscaler-private-access:zpa-con-azure:late
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.31.0 |
-| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.2.0 |
-| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.1.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.113.0 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.5.0 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.31.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.113.0 |
 
 ## Modules
 
@@ -53,10 +53,10 @@ No modules.
 | <a name="input_pse_nsg_id"></a> [pse\_nsg\_id](#input\_pse\_nsg\_id) | Private Service Edge management interface nsg id | `list(string)` | n/a | yes |
 | <a name="input_pse_subnet_id"></a> [pse\_subnet\_id](#input\_pse\_subnet\_id) | Private Service Edge subnet id | `list(string)` | n/a | yes |
 | <a name="input_pse_username"></a> [pse\_username](#input\_pse\_username) | Default Private Service Edge admin/root username | `string` | `"zpse-admin"` | no |
-| <a name="input_psevm_image_offer"></a> [psevm\_image\_offer](#input\_psevm\_image\_offer) | Azure Marketplace CIS CentOS Image Offer | `string` | `"cis-centos-7-v2-1-1-l1"` | no |
-| <a name="input_psevm_image_publisher"></a> [psevm\_image\_publisher](#input\_psevm\_image\_publisher) | Azure Marketplace CIS CentOS Image Publisher | `string` | `"center-for-internet-security-inc"` | no |
-| <a name="input_psevm_image_sku"></a> [psevm\_image\_sku](#input\_psevm\_image\_sku) | Azure Marketplace CIS CentOS Image SKU | `string` | `"cis-centos7-l1"` | no |
-| <a name="input_psevm_image_version"></a> [psevm\_image\_version](#input\_psevm\_image\_version) | Azure Marketplace CIS CentOS Image Version | `string` | `"3.1.15"` | no |
+| <a name="input_psevm_image_offer"></a> [psevm\_image\_offer](#input\_psevm\_image\_offer) | Azure Marketplace RHEL Image Offer | `string` | `"RHEL"` | no |
+| <a name="input_psevm_image_publisher"></a> [psevm\_image\_publisher](#input\_psevm\_image\_publisher) | Red Hat Inc | `string` | `"RedHat"` | no |
+| <a name="input_psevm_image_sku"></a> [psevm\_image\_sku](#input\_psevm\_image\_sku) | Azure Marketplace RHEL Image SKU | `string` | `"9.4"` | no |
+| <a name="input_psevm_image_version"></a> [psevm\_image\_version](#input\_psevm\_image\_version) | Azure Marketplace RHEL Image Version | `string` | `"latest"` | no |
 | <a name="input_psevm_instance_type"></a> [psevm\_instance\_type](#input\_psevm\_instance\_type) | Private Service Edge Image size | `string` | `"Standard_D2s_v3"` | no |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | Main Resource Group Name | `string` | n/a | yes |
 | <a name="input_resource_tag"></a> [resource\_tag](#input\_resource\_tag) | A tag to associate to all the AC VM module resources | `string` | `null` | no |

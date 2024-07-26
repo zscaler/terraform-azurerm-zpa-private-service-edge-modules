@@ -1,7 +1,7 @@
 variable "arm_location" {
   type        = string
   description = "The Azure Region where resources are to be deployed"
-  default     = "westus2"
+  default     = "canadacentral"
 }
 
 variable "name_prefix" {
