@@ -178,10 +178,6 @@ module "pse_vm" {
   psevm_image_sku       = var.psevm_image_sku
   psevm_image_version   = var.psevm_image_version
   pse_nsg_id            = module.pse_nsg.pse_nsg_id
-
-  depends_on = [
-    local_file.user_data_file,
-  ]
 }
 
 ################################################################################
