@@ -63,19 +63,19 @@ variable "user_data" {
 variable "psevm_image_publisher" {
   type        = string
   description = "Red Hat Inc"
-  default     = "RedHat"
+  default     = "redhat"
 }
 
 variable "psevm_image_offer" {
   type        = string
   description = "Azure Marketplace RHEL Image Offer"
-  default     = "RHEL"
+  default     = "rh-rhel"
 }
 
 variable "psevm_image_sku" {
   type        = string
   description = "Azure Marketplace RHEL Image SKU"
-  default     = "9.4"
+  default     = "rh-rhel9-gen1"
 }
 
 variable "psevm_image_version" {
@@ -83,7 +83,6 @@ variable "psevm_image_version" {
   description = "Azure Marketplace RHEL Image Version"
   default     = "latest"
 }
-
 
 variable "pse_count" {
   type        = number

@@ -18,7 +18,7 @@ This repository contains various modules and deployment configurations that can 
 
 These deployment templates are intended to be fully functional and self service for both greenfield/pov as well as production use. All modules may also be utilized as design recommendations based on Zscaler's Official [Zero Trust Access to Private Apps in Azure with ZPA](https://help.zscaler.com/downloads/zpa/reference-architecture/zero-trust-access-private-apps-microsoft-azure-zscaler-private-access/Zero-Trust-Access-to-Private-Apps-in-Azure-with-Zscaler-Private-Access.pdf).
 
-~> **IMPORTANT** As of version 1.1.0 of this module, all App Connectors are deployed using the new [Red Hat Enterprise Linux 9](https://help.zscaler.com/zpa/app-connector-red-hat-enterprise-linux-9-migration)
+~> **IMPORTANT** As of version 1.1.0 of this module, all Private Service Edges are deployed using the new [Red Hat Enterprise Linux 9](https://help.zscaler.com/zpa/app-connector-red-hat-enterprise-linux-9-migration)
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ Our Deployment scripts are leveraging Terraform v1.1.9 that includes full binary
    1. Application (client) ID
    2. Directory (tenant) ID
    3. Client Secret Value
-3. Azure Region (e.g. westus2) where App Connector resources are to be deployed
+3. Azure Region (e.g. westus2) where Private Service Edge resources are to be deployed
 
 ### Zscaler requirements
 This module leverages the Zscaler Private Access [ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) for the automated onboarding process. Before proceeding make sure you have the following pre-requistes ready.
@@ -49,9 +49,9 @@ This module leverages the Zscaler Private Access [ZPA Terraform Provider](https:
 - Client ID
 - Client Secret
 - Customer ID
-3. (Optional) An existing App Connector Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Connector Group and Provisioning Key
+3. (Optional) An existing Private Service Edge Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Service Edge Group and Provisioning Key
 
-See: [Zscaler Private Service Edge Azure Deployment Guide](https://help.zscaler.com/zpa/service-edge-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
+See: [Zscaler Private Service Edge Azure Deployment Guide](https://help.zscaler.com/zpa/private-service-edge-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
 
 ## How to deploy
 
