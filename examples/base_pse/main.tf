@@ -36,7 +36,7 @@ resource "tls_private_key" "key" {
 # write private key to local pem file
 resource "local_file" "private_key" {
   content         = tls_private_key.key.private_key_pem
-  filename        = "../${var.name_prefix}-key-${random_string.suffix.result}.pem"
+  filename        = "./${var.name_prefix}-key-${random_string.suffix.result}.pem"
   file_permission = "0600"
 }
 
@@ -130,10 +130,10 @@ touch /etc/yum.repos.d/zscaler.repo
 cat > /etc/yum.repos.d/zscaler.repo <<-EOT
 [zscaler]
 name=Zscaler Private Access Repository
-baseurl=https://yum.private.zscaler.com/yum/el7
+baseurl=https://yum.private.zscaler.com/yum/el9
 enabled=1
 gpgcheck=1
-gpgkey=https://yum.private.zscaler.com/gpg
+gpgkey=https://yum.private.zscaler.com/yum/el9/gpg
 EOT
 #Install Service Edge packages
 yum install zpa-service-edge -y
@@ -157,7 +157,7 @@ APPUSERDATA
 # Write the file to local filesystem for storage/reference
 resource "local_file" "user_data_file" {
   content  = local.appuserdata
-  filename = "../user_data"
+  filename = "./user_data"
 }
 
 # Create specified number of PSE appliances
@@ -180,10 +180,6 @@ module "pse_vm" {
   psevm_image_sku       = var.psevm_image_sku
   psevm_image_version   = var.psevm_image_version
   pse_nsg_id            = module.pse_nsg.pse_nsg_id
-
-  depends_on = [
-    local_file.user_data_file,
-  ]
 }
 
 

@@ -62,26 +62,26 @@ variable "user_data" {
 
 variable "psevm_image_publisher" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Publisher"
-  default     = "center-for-internet-security-inc"
+  description = "Red Hat Inc"
+  default     = "redhat"
 }
 
 variable "psevm_image_offer" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Offer"
-  default     = "cis-centos-7-v2-1-1-l1"
+  description = "Azure Marketplace RHEL Image Offer"
+  default     = "rh-rhel"
 }
 
 variable "psevm_image_sku" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image SKU"
-  default     = "cis-centos7-l1"
+  description = "Azure Marketplace RHEL Image SKU"
+  default     = "rh-rhel9-gen1"
 }
 
 variable "psevm_image_version" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Version"
-  default     = "3.1.15"
+  description = "Azure Marketplace RHEL Image Version"
+  default     = "latest"
 }
 
 variable "pse_count" {

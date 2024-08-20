@@ -10,13 +10,13 @@ There is a "BYO" option where you can conditionally create new or reference an e
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_zpa"></a> [zpa](#requirement\_zpa) | ~> 2.7.0 |
+| <a name="requirement_zpa"></a> [zpa](#requirement\_zpa) | ~> 3.31.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_zpa"></a> [zpa](#provider\_zpa) | ~> 2.7.0 |
+| <a name="provider_zpa"></a> [zpa](#provider\_zpa) | ~> 3.31.0 |
 
 ## Modules
 
@@ -27,7 +27,7 @@ No modules.
 | Name | Type |
 |------|------|
 | [zpa_provisioning_key.provisioning_key](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/provisioning_key) | resource |
-| [zpa_enrollment_cert.connector_cert](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/enrollment_cert) | data source |
+| [zpa_enrollment_cert.service_edge_cert](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/enrollment_cert) | data source |
 | [zpa_provisioning_key.provisioning_key_selected](https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/provisioning_key) | data source |
 
 ## Inputs
