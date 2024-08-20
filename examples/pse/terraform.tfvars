@@ -1,8 +1,8 @@
 ## This is only a sample terraform.tfvars file.
 ## Uncomment and change the below variables according to your specific environment
 #####################################################################################################################
-##### Variables 5-13 are populated automically if terraform is ran via ZSPSE bash script.   #####
-##### Modifying the variables in this file will override any inputs from ZSPSE              #####
+##### Variables 5-13 are populated automically if terraform is ran via zspse bash script.   #####
+##### Modifying the variables in this file will override any inputs from zspse              #####
 #####################################################################################################################
 
 #####################################################################################################################
@@ -10,33 +10,32 @@
 ##### Service Edge Group + Provisioning Key.                                   #####
 #####################################################################################################################
 
-## 1. ZPA Service Edge Provisioning Key variables. Uncomment and replace default values as desired for your deployment.
+## 1. ZPA Private Service Edge Provisioning Key variables. Uncomment and replace default values as desired for your deployment.
 ##    For any questions populating the below values, please reference:
 ##    https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/zpa_provisioning_key
 
-#enrollment_cert                                = "Connector"
-#provisioning_key_name                          = "new_key_name"
-#provisioning_key_enabled                       = true
-#provisioning_key_max_usage                     = 10
+#enrollment_cert                            = "Service Edge"
+#provisioning_key_name                      = "new_key_name"
+#provisioning_key_enabled                   = true
+#provisioning_key_max_usage                 = 10
 
-## 2. ZPA Service Edge Group variables. Uncomment and replace default values as desired for your deployment.
+## 2. ZPA Private Service Edge Group variables. Uncomment and replace default values as desired for your deployment.
 ##    For any questions populating the below values, please reference:
-##    https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/zpa_service_edge_group
+##    https://registry.terraform.io/providers/zscaler/zpa/latest/docs/resources/zpa_pse_group
 
-#pse_group_name                       = "new_group_name"
-#pse_group_description                = "group_description"
-#pse_group_enabled                    = true
-#pse_group_country_code               = "US"
-#pse_group_latitude                   = "37.3382082"
-#pse_group_longitude                  = "-121.8863286"
-#pse_group_location                   = "San Jose, CA, USA"
-#pse_group_upgrade_day                = "SUNDAY"
-#pse_group_upgrade_time_in_secs       = "66600"
-#pse_group_override_version_profile   = true
-#pse_group_version_profile_id         = "2"
-#pse_is_public                      = false
-#zpa_trusted_network_name           = "Corporate-Network (zscalertwo.net)"
-
+#pse_group_name                             = "new_group_name"
+#pse_group_description                      = "group_description"
+#pse_group_enabled                          = true
+#pse_group_country_code                     = "US"
+#pse_group_latitude                         = "37.3382082"
+#pse_group_longitude                        = "-121.8863286"
+#pse_group_location                         = "San Jose, CA, USA"
+#pse_group_upgrade_day                      = "SUNDAY"
+#pse_group_upgrade_time_in_secs             = "66600"
+#pse_group_override_version_profile         = true
+#pse_group_version_profile_id               = "2"
+#pse_is_public                              = false
+#zpa_trusted_network_name                   = "Corporate-Network (zscalertwo.net)"
 
 
 #####################################################################################################################
@@ -47,52 +46,54 @@
 ## 3. By default, this script will create a new Service Edge Group Provisioning Key.
 ##     Uncomment if you want to use an existing provisioning key (true or false. Default: false)
 
-#byo_provisioning_key                           = true
+#byo_provisioning_key                       = true
 
 ## 4. Provide your existing provisioning key name. Only uncomment and modify if yo uset byo_provisioning_key to true
 
-#byo_provisioning_key_name                      = "example-key-name"
+#byo_provisioning_key_name                  = "example-key-name"
+
+# zpa_trusted_network_name                  = "Corp-Trusted-Networks"
 
 #####################################################################################################################
 ##### Custom variables. Only change if required for your environment  #####
 #####################################################################################################################
 
-## 5. Azure region where Service Edge resources will be deployed. This environment variable is automatically populated if running ZSPSE script
+## 5. Azure region where Private Service Edge resources will be deployed. This environment variable is automatically populated if running zspse script
 ##    and thus will override any value set here. Only uncomment and set this value if you are deploying terraform standalone. (Default: westus2)
 
-arm_location = "canadacentral"
+#arm_location                               = "eastus"
 
-## 6. Service Edge Azure VM Instance size selection. Uncomment psevm_instance_type line with desired vm size to change.
+## 6. Private Service Edge Azure VM Instance size selection. Uncomment acvm_instance_type line with desired vm size to change.
 ##    (Default: Standard_D4s_v3)
 
-psevm_instance_type = "Standard_D4s_v3"
-#psevm_instance_type                         = "Standard_F4s_v2"
+#psevm_instance_type = "Standard_D4s_v3"
+#psevm_instance_type                        = "Standard_F4s_v2"
 
-## 7. The number of Service Edge appliances to provision. Each incremental Service Edge will be created in alternating
+## 7. The number of Private Service Edge appliances to provision. Each incremental Private Service Edge will be created in alternating
 ##     subnets based on the zones or byo_subnet_names variable and loop through for any deployments where pse_count > zones.
-##     E.g. pse_count set to 4 and 2 zones set ['1","2"] will create 2x PSEs in AZ1 and 2x PSEs in AZ2
+##     E.g. pse_count set to 4 and 2 zones set ['1","2"] will create 2x ACs in AZ1 and 2x ACs in AZ2
 
-pse_count = 2
+#pse_count                                  = 1
 
 ## 8. By default, no zones are specified in any resource creation meaning they are either auto-assigned by Azure
 ##    (Virtual Machines and NAT Gateways) or Zone-Redundant (Public IP) based on whatever default configuration is.
 ##    Setting this value to true will do the following:
 ##    1. will create zonal NAT Gateway resources in order of the zones [1-3] specified in zones variable. 1x per zone
-##    2. will NOT create availability set resource nor associate Service Edge VMs to one
-##    3. will create zonal Service Edge Virtual Machine appliances looping through and alternating per the order of the zones
-##       [1-3] specified in the zones variable AND total number of Service Edges specified in ac_count variable.
+##    2. will NOT create availability set resource nor associate Private Service Edge VMs to one
+##    3. will create zonal Private Service Edge Virtual Machine appliances looping through and alternating per the order of the zones
+##       [1-3] specified in the zones variable AND total number of Private Service Edges specified in pse_count variable.
 ##    (Default: false)
 
 #zones_enabled                              = true
 
-## 9. By default, this variable is used as a count (1) for resource creation of Public IP, NAT Gateway, and PSE Subnets.
+## 9. By default, this variable is used as a count (1) for resource creation of Public IP, NAT Gateway, and AC Subnets.
 ##    This should only be modified if zones_enabled is also set to true
 ##    Doing so will change the default zone aware configuration for the 3 aforementioned resources with the values specified
 ##
 ##    Use case: Define zone numbers "1" and "2". This will create 2x Public IPs (one in zone 1; the other in zone 2),
 ##              2x NAT Gateways (one in zone 1; the other in zone 2), associate the zone 1 PIP w/ zone 1 NAT GW and the zone 2
-##              PIP w/ zone 2 NAT GW, create 2x PSE Subnets and associate subnet 1 w/ zone 1 NAT GW and subnet 2 w/ zone 2 NAT GW,
-##              then each PSE created will be assigned a zone in the subnet corresponding to the same zone of the NAT GW and PIP associated.
+##              PIP w/ zone 2 NAT GW, create 2x AC Subnets and associate subnet 1 w/ zone 1 NAT GW and subnet 2 w/ zone 2 NAT GW,
+##              then each AC created will be assigned a zone in the subnet corresponding to the same zone of the NAT GW and PIP associated.
 
 ##    Uncomment one of the desired zones configuration below.
 
@@ -102,7 +103,7 @@ pse_count = 2
 
 ## 10. Network Configuration:
 
-##    IPv4 CIDR configured with VNet creation. All Subnet resources (Workload, Public, and Service Edge) will be created based off this prefix
+##    IPv4 CIDR configured with VNet creation. All Subnet resources (Workload, Public, and Private Service Edge) will be created based off this prefix
 ##    /24 subnets are created assuming this cidr is a /16. If you require creating a VNet smaller than /16, you may need to explicitly define all other
 ##     subnets via public_subnets, and pse_subnets variables (Default: "10.1.0.0/16")
 
@@ -131,8 +132,8 @@ pse_count = 2
 
 #environment                                = "Development"
 
-## 13. By default, this script will apply 1 Network Security Group per Service Edge instance.
-##     Uncomment if you want to use the same Network Security Group for ALL Service Edges (true or false. Default: false)
+## 13. By default, this script will apply 1 Network Security Group per Private Service Edge instance.
+##     Uncomment if you want to use the same Network Security Group for ALL Private Service Edges (true or false. Default: false)
 
 #reuse_nsg                                  = true
 

@@ -40,19 +40,19 @@ From base directory execute:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.31.0 |
-| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.2.0 |
-| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.1.0 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.3.0 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | ~> 3.4.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.113.0 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.5.0 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.6.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | ~> 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_local"></a> [local](#provider\_local) | ~> 2.2.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.3.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | ~> 3.4.0 |
+| <a name="provider_local"></a> [local](#provider\_local) | ~> 2.5.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.6.0 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | ~> 4.0.0 |
 
 ## Modules
 
@@ -74,10 +74,10 @@ From base directory execute:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_arm_location"></a> [arm\_location](#input\_arm\_location) | The Azure Region where resources are to be deployed | `string` | `"westus2"` | no |
+| <a name="input_arm_location"></a> [arm\_location](#input\_arm\_location) | The Azure Region where resources are to be deployed | `string` | `"canadacentral"` | no |
 | <a name="input_bastion_nsg_source_prefix"></a> [bastion\_nsg\_source\_prefix](#input\_bastion\_nsg\_source\_prefix) | User input for locking down SSH access to bastion to a specific IP or CIDR range. Defaults to any IP | `string` | `"*"` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Customer defined environment tag. ie: Dev, QA, Prod, etc. | `string` | `"Development"` | no |
-| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | The name prefix for all your resources | `string` | `"zsdemo"` | no |
+| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | The name prefix for all your resources | `string` | `"zspse"` | no |
 | <a name="input_network_address_space"></a> [network\_address\_space](#input\_network\_address\_space) | VNet IP CIDR Range. All subnet resources that might get created (public, private service edge) are derived from this /16 CIDR. If you require creating a VNet smaller than /16, you may need to explicitly define all other subnets via public\_subnets and pse\_subnets variables | `string` | `"10.1.0.0/16"` | no |
 | <a name="input_owner_tag"></a> [owner\_tag](#input\_owner\_tag) | Customer defined owner tag value. ie: Org, Dept, username, etc. | `string` | `"zspse-admin"` | no |
 | <a name="input_public_subnets"></a> [public\_subnets](#input\_public\_subnets) | Public/Bastion Subnets to create in VNet. This is only required if you want to override the default subnets that this code creates via network\_address\_space variable. | `list(string)` | `null` | no |

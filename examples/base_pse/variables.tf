@@ -1,13 +1,17 @@
 variable "arm_location" {
   type        = string
   description = "The Azure Region where resources are to be deployed"
-  default     = "westus2"
+  default     = "canadacentral"
 }
 
 variable "name_prefix" {
   type        = string
   description = "The name prefix for all your resources"
-  default     = "zsdemo"
+  default     = "zspse"
+  validation {
+    condition     = length(var.name_prefix) <= 12
+    error_message = "Variable name_prefix must be 12 or less characters."
+  }
 }
 
 variable "network_address_space" {
@@ -49,11 +53,11 @@ variable "tls_key_algorithm" {
 variable "psevm_instance_type" {
   type        = string
   description = "Private Service Edge Image size"
-  default     = "Standard_D4s_v3"
+  default     = "Standard_D2s_v3"
   validation {
     condition = (
-      var.psevm_instance_type == "Standard_D4s_v3" ||
-      var.psevm_instance_type == "Standard_F4s_v2"
+      var.psevm_instance_type == "Standard_D2s_v3" ||
+      var.psevm_instance_type == "Standard_D4s_v3"
     )
     error_message = "Input psevm_instance_type must be set to an approved vm size."
   }
@@ -61,26 +65,26 @@ variable "psevm_instance_type" {
 
 variable "psevm_image_publisher" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Publisher"
-  default     = "center-for-internet-security-inc"
+  description = "Red Hat Inc"
+  default     = "redhat"
 }
 
 variable "psevm_image_offer" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Offer"
-  default     = "cis-centos-7-v2-1-1-l1"
+  description = "Azure Marketplace RHEL Image Offer"
+  default     = "rh-rhel"
 }
 
 variable "psevm_image_sku" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image SKU"
-  default     = "cis-centos7-l1"
+  description = "Azure Marketplace RHEL Image SKU"
+  default     = "rh-rhel9-gen1"
 }
 
 variable "psevm_image_version" {
   type        = string
-  description = "Azure Marketplace CIS CentOS Image Version"
-  default     = "3.1.15"
+  description = "Azure Marketplace RHEL Image Version"
+  default     = "latest"
 }
 
 variable "pse_count" {
@@ -164,19 +168,19 @@ variable "pse_group_enabled" {
 variable "pse_group_country_code" {
   type        = string
   description = "Optional: Country code of this Service Edge Group. example 'US'"
-  default     = ""
+  default     = "US"
 }
 
 variable "pse_group_latitude" {
   type        = string
   description = "Latitude of the Service Edge Group. Integer or decimal. With values in the range of -90 to 90"
-  default     = "37.3382082"
+  default     = "37.33874"
 }
 
 variable "pse_group_longitude" {
   type        = string
   description = "Longitude of the Service Edge Group. Integer or decimal. With values in the range of -90 to 90"
-  default     = "-121.8863286"
+  default     = "-121.8852525"
 }
 
 variable "pse_group_location" {
@@ -200,7 +204,7 @@ variable "pse_group_upgrade_time_in_secs" {
 variable "pse_group_override_version_profile" {
   type        = bool
   description = "Optional: Whether the default version profile of the Service Edge Group is applied or overridden. Default: false"
-  default     = false
+  default     = true
 }
 
 variable "pse_group_version_profile_id" {
@@ -227,7 +231,7 @@ variable "pse_is_public" {
 variable "zpa_trusted_network_name" {
   type        = string
   description = "To query trusted network that are associated with a specific Zscaler cloud, it is required to append the cloud name to the name of the trusted network. For more details refer to docs: https://registry.terraform.io/providers/zscaler/zpa/latest/docs/data-sources/zpa_trusted_network"
-  #default     = "" # a valid example name + cloud >> "Corporate-Network (zscalertwo.net)"
+  default     = "" # a valid example name + cloud >> "Corporate-Network (zscalertwo.net)"
 }
 
 variable "provisioning_key_enabled" {

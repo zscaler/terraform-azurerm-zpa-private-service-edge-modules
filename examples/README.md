@@ -1,6 +1,6 @@
-# Zscaler App Connector Cluster Infrastructure Setup
+# Zscaler Private Service Edge Cluster Infrastructure Setup
 
-**Terraform configurations and modules for deploying Zscaler App Connector Cluster in Azure.**
+**Terraform configurations and modules for deploying Zscaler Private Service Edge Cluster in Azure.**
 
 ## Prerequisites (You will be prompted for Azure application credentials and region during deployment)
 
@@ -11,7 +11,7 @@
    1. Application (client) ID
    2. Directory (tenant) ID
    3. Client Secret Value
-3. Azure Region (e.g. westus2) where App Connector resources are to be deployed
+3. Azure Region (e.g. westus2) where Private Service Edge resources are to be deployed
 
 ### Zscaler requirements
 4. A valid Zscaler Private Access subscription and portal access
@@ -19,9 +19,9 @@
 - Client ID
 - Client Secret
 - Customer ID
-6. (Optional) An existing App Connector Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Connector Group and Provisioning Key
+6. (Optional) An existing Private Service Edge Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Service Edge Group and Provisioning Key
 
-See: [Zscaler App Connector Azure Deployment Guide](https://help.zscaler.com/zpa/connector-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
+See: [Zscaler Private Service Edge Azure Deployment Guide](https://help.zscaler.com/zpa/private-service-edge-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
 
 
 ## Deploying the cluster
@@ -35,7 +35,7 @@ See: [Zscaler App Connector Azure Deployment Guide](https://help.zscaler.com/zpa
 ```
 bash
 cd examples
-Optional: Edit the terraform.tfvars file under your desired deployment type (ie: base_ac) to setup your App Connector Group (Details are documented inside the file)
+Optional: Edit the terraform.tfvars file under your desired deployment type (ie: base_pse) to setup your Private Service Edge Group (Details are documented inside the file)
 - ./zspse up
 - enter "greenfield"
 - enter <desired deployment type>
@@ -48,10 +48,10 @@ Optional: Edit the terraform.tfvars file under your desired deployment type (ie:
 **Greenfield Deployment Types:**
 
 ```
-Deployment Type: (base | base_ac ):
-**base** - Creates: 1 Resource Group containing; 1 VNet w/ 1 subnet (public/bastion); 1 Centos Bastion Host w/ 1 PIP + 1 Network Interface + NSG; generates local key pair .pem file for ssh access. This does NOT deploy any actual App Connectors.
+Deployment Type: (base | base_pse ):
+**base** - Creates: 1 Resource Group containing; 1 VNet w/ 1 subnet (public/bastion); 1 Centos Bastion Host w/ 1 PIP + 1 Network Interface + NSG; generates local key pair .pem file for ssh access. This does NOT deploy any actual Private Service Edges.
 
-**base_ac** - Base deployment + Creates 1 App Connector private subnet; 2 App Connector VMs in an availability set (or zones if supported and specified) each with a single network interface and NIC NSG
+**base_pse** - Base deployment + Creates 1 Private Service Edge private subnet; 1 or more Private Service Edge VMs in an availability set (or zones if supported and specified) each with a single network interface and NIC NSG
 ```
 
 
@@ -62,7 +62,7 @@ Deployment Type: (base | base_ac ):
 ```
 bash
 cd examples
-Optional: Edit the terraform.tfvars file under your desired deployment type (ie: ac) to setup your App Connector (Details are documented inside the file)
+Optional: Edit the terraform.tfvars file under your desired deployment type (ie: pse) to setup your Private Service Edge (Details are documented inside the file)
 - ./zspse up
 - enter "brownfield"
 - enter <desired deployment type>
@@ -75,11 +75,11 @@ Optional: Edit the terraform.tfvars file under your desired deployment type (ie:
 **Brownfield Deployment Types**
 
 ```
-Deployment Type: (ac):
-**ac** - Creates 1 Resource Group containing: 1 VNet w/ 1 AC subnet; 2 App Connectors in availability set (or zones if supported and enabled) with a single network interface and NIC NSG; 1 PIP + 1 NAT Gateway (or one per zone); generates local key pair .pem file for ssh access. Number of App Connectors deployed and ability to use existing resources (resource group(s), VNet/Subnets, PIP, NAT GW) customizable withing terraform.tfvars custom variables.
+Deployment Type: (pse):
+**pse** - Creates 1 Resource Group containing: 1 VNet w/ 1 PSE subnet; 2 Private Service Edges in availability set (or zones if supported and enabled) with a single network interface and NIC NSG; 1 PIP + 1 NAT Gateway (or one per zone); generates local key pair .pem file for ssh access. Number of Private Service Edges deployed and ability to use existing resources (resource group(s), VNet/Subnets, PIP, NAT GW) customizable withing terraform.tfvars custom variables.
 
-Deployment type ac provides numerous customization options within terraform.tfvars to enable/disable bring-your-own resources for
-App Connector deployment in existing environments. Custom paramaters include: BYO existing Resource Group, PIPs, NAT Gateways and associations,
+Deployment type pse provides numerous customization options within terraform.tfvars to enable/disable bring-your-own resources for
+Private Service Edge deployment in existing environments. Custom paramaters include: BYO existing Resource Group, PIPs, NAT Gateways and associations,
 VNet, and subnets.
 ```
 
@@ -93,6 +93,6 @@ cd examples
 ## Notes
 ```
 1. For auto approval set environment variable **AUTO_APPROVE** or add `export AUTO_APPROVE=1`
-2. For deployment type set environment variable **dtype** to the required deployment type or add e.g. `export dtype=base_ac`
+2. For deployment type set environment variable **dtype** to the required deployment type or add e.g. `export dtype=base_pse`
 3. To provide new credentials or region, delete the autogenerated .zspserc file in your current working directory and re-run zspse.
 ```

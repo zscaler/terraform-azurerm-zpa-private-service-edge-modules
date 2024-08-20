@@ -1,13 +1,17 @@
 variable "arm_location" {
   type        = string
   description = "The Azure Region where resources are to be deployed"
-  default     = "westus2"
+  default     = "canadacentral"
 }
 
 variable "name_prefix" {
   type        = string
   description = "The name prefix for all your resources"
-  default     = "zsdemo"
+  default     = "zspse"
+  validation {
+    condition     = length(var.name_prefix) <= 12
+    error_message = "Variable name_prefix must be 12 or less characters."
+  }
 }
 
 variable "network_address_space" {
