@@ -30,6 +30,15 @@ resource "azurerm_network_interface_security_group_association" "pse_nic_associa
   depends_on = [azurerm_network_interface.pse_nic]
 }
 
+################################################################################
+# Make sure that ZPA App Connector image terms have been accepted
+################################################################################
+resource "azurerm_marketplace_agreement" "zs_image_agreement" {
+  offer     = var.psevm_image_offer
+  plan      = var.psevm_image_sku
+  publisher = var.psevm_image_publisher
+}
+
 
 ################################################################################
 # Create App Connector VM
@@ -77,7 +86,8 @@ resource "azurerm_linux_virtual_machine" "pse_vm" {
   tags = var.global_tags
 
   depends_on = [
-    azurerm_network_interface_security_group_association.pse_nic_association
+    azurerm_network_interface_security_group_association.pse_nic_association,
+    azurerm_marketplace_agreement.zs_image_agreement
   ]
 }
 
