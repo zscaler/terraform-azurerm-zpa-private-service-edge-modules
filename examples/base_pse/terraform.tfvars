@@ -61,7 +61,7 @@
 ## 5. Azure region where Private Service Edge resources will be deployed. This environment variable is automatically populated if running zspse script
 ##    and thus will override any value set here. Only uncomment and set this value if you are deploying terraform standalone. (Default: westus2)
 
-#arm_location                               = "eastus"
+# arm_location                               = "westus2"
 
 ## 6. Private Service Edge Azure VM Instance size selection. Uncomment acvm_instance_type line with desired vm size to change.
 ##    (Default: Standard_D4s_v3)
@@ -73,7 +73,7 @@
 ##     subnets based on the zones or byo_subnet_names variable and loop through for any deployments where pse_count > zones.
 ##     E.g. pse_count set to 4 and 2 zones set ['1","2"] will create 2x ACs in AZ1 and 2x ACs in AZ2
 
-#pse_count                                  = 1
+pse_count = 1
 
 ## 8. By default, no zones are specified in any resource creation meaning they are either auto-assigned by Azure
 ##    (Virtual Machines and NAT Gateways) or Zone-Redundant (Public IP) based on whatever default configuration is.
