@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.2.1](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/compare/v1.2.0...v1.2.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* Fixed Azure Agreement Resource and user information outputs ([#21](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/issues/21)) ([6158e66](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/commit/6158e66c087f0bfeaf4eebd779fcf97e02c31b4c))
+
 ## [1.2.0](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/compare/v1.1.0...v1.2.0) (2024-08-20)
 
 
