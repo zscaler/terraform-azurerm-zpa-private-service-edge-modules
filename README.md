@@ -37,12 +37,14 @@ Our Deployment scripts are leveraging Terraform v1.1.9 that includes full binary
 
 ### Zscaler requirements
 
-4. A valid Zscaler Private Access subscription and portal access
-5. Zscaler ZPA API Keys. Details on how to find and generate ZPA API keys can be located here: https://help.zscaler.com/zpa/about-api-keys#:~:text=An%20API%20key%20is%20required,from%20the%20API%20Keys%20page
+This module leverages the Zscaler Private Access [ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) for the automated onboarding process. Before proceeding make sure you have the following pre-requistes ready.
+
+1. A valid Zscaler Private Access subscription and portal access
+2. Zscaler ZPA API Keys. Details on how to find and generate ZPA API keys can be located here: https://help.zscaler.com/zpa/about-api-keys#:~:text=An%20API%20key%20is%20required,from%20the%20API%20Keys%20page
 - Client ID
 - Client Secret
 - Customer ID
-6. (Optional) An existing Service Edge Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Service Edge Group and Provisioning Key
+3. (Optional) An existing Service Edge Group and Provisioning Key. Otherwise, you can follow the prompts in the examples terraform.tfvars to create a new Service Edge Group and Provisioning Key
 
 See: [Zscaler Private Service Edge Azure Deployment Guide](https://help.zscaler.com/zpa/service-edge-deployment-guide-microsoft-azure) for additional prerequisite provisioning steps.
 

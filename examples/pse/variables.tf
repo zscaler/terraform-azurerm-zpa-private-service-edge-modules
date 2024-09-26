@@ -78,7 +78,7 @@ variable "psevm_image_offer" {
 variable "psevm_image_sku" {
   type        = string
   description = "Azure Marketplace RHEL Image SKU"
-  default     = "rh-rhel9-gen1"
+  default     = "rh-rhel9"
 }
 
 variable "psevm_image_version" {
