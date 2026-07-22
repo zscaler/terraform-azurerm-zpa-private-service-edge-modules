@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.113.0"
+      version = "~> 4.81.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -20,9 +20,13 @@ terraform {
       source  = "hashicorp/tls"
       version = "~> 4.0.0"
     }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.3"
+    }
     zpa = {
       source  = "zscaler/zpa"
-      version = "~> 3"
+      version = ">= 4.4.0"
     }
   }
   required_version = ">= 0.13.7, < 2.0.0"

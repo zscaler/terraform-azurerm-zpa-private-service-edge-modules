@@ -1,6 +1,6 @@
 variable "enrollment_cert" {
   type        = string
-  description = "Get name of ZPA enrollment cert to be used for Private Service Edge provisioning"
+  description = "Get name of ZPA enrollment cert to be used for Service Edge provisioning"
   default     = "Service Edge"
 
   validation {
@@ -24,7 +24,7 @@ variable "provisioning_key_enabled" {
 
 variable "provisioning_key_association_type" {
   type        = string
-  description = "Specifies the provisioning key type for Private Service Edges or ZPA Private Service Edges. The supported values are CONNECTOR_GRP and SERVICE_EDGE_GRP"
+  description = "Specifies the provisioning key type for Service Edges or ZPA Private Service Edges. The supported value is SERVICE_EDGE_GRP"
   default     = "SERVICE_EDGE_GRP"
 
   validation {
@@ -37,18 +37,18 @@ variable "provisioning_key_association_type" {
 
 variable "provisioning_key_max_usage" {
   type        = number
-  description = "The maximum number of instances where this provisioning key can be used for enrolling a Private Service Edge"
+  description = "The maximum number of instances where this provisioning key can be used for enrolling an Service Edge or Service Edge"
 }
 
 variable "byo_provisioning_key" {
   type        = bool
-  description = "Bring your own Private Service Edge Provisioning Key. Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name"
+  description = "Bring your own Service Edge Provisioning Key. Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name"
   default     = false
 }
 
 variable "byo_provisioning_key_name" {
   type        = string
-  description = "Existing Private Service Edge Provisioning Key name"
+  description = "Existing Service Edge Provisioning Key name"
   default     = null
 }
 

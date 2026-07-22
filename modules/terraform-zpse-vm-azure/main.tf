@@ -1,7 +1,7 @@
 ################################################################################
-# Create App Connector Interface and associate NSG
+# Create Private Service Edge Interface and associate NSG
 ################################################################################
-# Create App Connector interface
+# Create Private Service Edge interface
 resource "azurerm_network_interface" "pse_nic" {
   count               = var.pse_count
   name                = "${var.name_prefix}-pse-nic-${count.index + 1}-${var.resource_tag}"
@@ -20,7 +20,7 @@ resource "azurerm_network_interface" "pse_nic" {
 
 
 ################################################################################
-# Associate App Connector interface to NSG
+# Associate Private Service Edge interface to NSG
 ################################################################################
 resource "azurerm_network_interface_security_group_association" "pse_nic_association" {
   count                     = var.pse_count
@@ -31,9 +31,17 @@ resource "azurerm_network_interface_security_group_association" "pse_nic_associa
 }
 
 ################################################################################
-# Make sure that ZPA App Connector image terms have been accepted
+# Make sure that the Private Service Edge image terms have been accepted.
+#
+# A marketplace agreement is a subscription-level singleton: once the terms for
+# a plan are accepted they persist for the whole subscription. Most subscriptions
+# already have these terms accepted, in which case Terraform creating the resource
+# fails with "a resource with the ID ... already exists". This is therefore opt-in
+# (disabled by default); set accept_marketplace_agreement = true only for a brand
+# new subscription where the terms have never been accepted.
 ################################################################################
 resource "azurerm_marketplace_agreement" "zs_image_agreement" {
+  count     = var.accept_marketplace_agreement ? 1 : 0
   offer     = var.psevm_image_offer
   plan      = var.psevm_image_sku
   publisher = var.psevm_image_publisher
@@ -41,7 +49,7 @@ resource "azurerm_marketplace_agreement" "zs_image_agreement" {
 
 
 ################################################################################
-# Create App Connector VM
+# Create Private Service Edge VM
 ################################################################################
 resource "azurerm_linux_virtual_machine" "pse_vm" {
   count               = var.pse_count
@@ -58,7 +66,19 @@ resource "azurerm_linux_virtual_machine" "pse_vm" {
 
   computer_name  = "${var.name_prefix}-psevm-${count.index + 1}-${var.resource_tag}"
   admin_username = var.pse_username
-  custom_data    = base64encode(var.user_data)
+  custom_data    = base64encode(element(var.user_data, count.index))
+
+  # User-assigned Managed Identity passed in by the caller. Used by the OAuth2
+  # onboarding flow so the Service Edge VM can publish its OAuth2 user code to
+  # Azure Key Vault without any embedded credentials. The identity is created up
+  # front (outside this module) and its Key Vault grant is propagated BEFORE the
+  # VM boots, so the Service Edge's first Key Vault write succeeds instead of
+  # hitting a boot-time 403 ForbiddenByRbac. Harmless when onboarding via
+  # provisioning key.
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [var.user_assigned_identity_id]
+  }
 
   admin_ssh_key {
     username   = var.pse_username

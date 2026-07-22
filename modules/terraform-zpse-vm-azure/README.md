@@ -12,21 +12,21 @@ az vm image terms accept --urn redhat:rh-rhel:rh-rhel9-gen1:latest
 ```
 
 
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.7, < 2.0.0 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 3.113.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.81.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.5.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.2.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 3.113.0 |
+| ---- | ------- |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 4.81.0 |
 
 ## Modules
 
@@ -35,7 +35,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_availability_set.pse_availability_set](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/availability_set) | resource |
 | [azurerm_linux_virtual_machine.pse_vm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine) | resource |
 | [azurerm_marketplace_agreement.zs_image_agreement](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/marketplace_agreement) | resource |
@@ -45,7 +45,8 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_accept_marketplace_agreement"></a> [accept\_marketplace\_agreement](#input\_accept\_marketplace\_agreement) | Whether to accept the Private Service Edge Azure Marketplace image terms. A marketplace agreement is a subscription-level singleton; if the terms are already accepted in the subscription, leave this false to avoid an 'already exists' error. Set to true only for a new subscription where the terms have never been accepted. | `bool` | `false` | no |
 | <a name="input_global_tags"></a> [global\_tags](#input\_global\_tags) | Populate any custom user defined tags from a map | `map(string)` | `{}` | no |
 | <a name="input_location"></a> [location](#input\_location) | Private Service Edge Azure Region | `string` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | A prefix to associate to all the AC VM module resources | `string` | `null` | no |
@@ -57,18 +58,19 @@ No modules.
 | <a name="input_psevm_image_publisher"></a> [psevm\_image\_publisher](#input\_psevm\_image\_publisher) | Red Hat Inc | `string` | `"RedHat"` | no |
 | <a name="input_psevm_image_sku"></a> [psevm\_image\_sku](#input\_psevm\_image\_sku) | Azure Marketplace RHEL Image SKU | `string` | `"rh-rhel9"` | no |
 | <a name="input_psevm_image_version"></a> [psevm\_image\_version](#input\_psevm\_image\_version) | Azure Marketplace RHEL Image Version | `string` | `"latest"` | no |
-| <a name="input_psevm_instance_type"></a> [psevm\_instance\_type](#input\_psevm\_instance\_type) | Private Service Edge Image size | `string` | `"Standard_D2s_v3"` | no |
+| <a name="input_psevm_instance_type"></a> [psevm\_instance\_type](#input\_psevm\_instance\_type) | Private Service Edge Image size | `string` | `"Standard_D4s_v3"` | no |
 | <a name="input_resource_group"></a> [resource\_group](#input\_resource\_group) | Main Resource Group Name | `string` | n/a | yes |
 | <a name="input_resource_tag"></a> [resource\_tag](#input\_resource\_tag) | A tag to associate to all the AC VM module resources | `string` | `null` | no |
 | <a name="input_ssh_key"></a> [ssh\_key](#input\_ssh\_key) | SSH Key for instances | `string` | n/a | yes |
-| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | Cloud Init data | `string` | n/a | yes |
-| <a name="input_zones"></a> [zones](#input\_zones) | Specify which availability zone(s) to deploy VM resources in if zones\_enabled variable is set to true | `list(string)` | <pre>[<br>  "1"<br>]</pre> | no |
+| <a name="input_user_assigned_identity_id"></a> [user\_assigned\_identity\_id](#input\_user\_assigned\_identity\_id) | Resource ID of the user-assigned Managed Identity to attach to each Private Service Edge VM. Used by the OAuth2 onboarding flow to authenticate to Key Vault. Created up front by the caller so its Key Vault grant is in place before the VM boots. | `string` | n/a | yes |
+| <a name="input_user_data"></a> [user\_data](#input\_user\_data) | Per-instance cloud-init (custom\_data) scripts, one entry per Private Service Edge VM | `list(string)` | n/a | yes |
+| <a name="input_zones"></a> [zones](#input\_zones) | Specify which availability zone(s) to deploy VM resources in if zones\_enabled variable is set to true | `list(string)` | <pre>[<br/>  "1"<br/>]</pre> | no |
 | <a name="input_zones_enabled"></a> [zones\_enabled](#input\_zones\_enabled) | Determine whether to provision Private Service Edge VMs explicitly in defined zones (if supported by the Azure region provided in the location variable). If left false, Azure will automatically choose a zone and module will create an availability set resource instead for VM fault tolerance | `bool` | `false` | no |
 
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_private_ip"></a> [private\_ip](#output\_private\_ip) | Instance Management Interface Private IP Address |
 | <a name="output_pse_hostname"></a> [pse\_hostname](#output\_pse\_hostname) | Instance Host Name |
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+<!-- END_TF_DOCS -->

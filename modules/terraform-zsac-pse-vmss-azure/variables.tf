@@ -1,0 +1,270 @@
+variable "name_prefix" {
+  type        = string
+  description = "A prefix to associate to all the AC VM module resources"
+}
+
+variable "resource_tag" {
+  type        = string
+  description = "A tag to associate to all the AC VM module resources"
+  default     = ""
+}
+
+variable "fault_domain_count" {
+  type        = number
+  description = "platformFaultDomainCount must be set to 1 for max spreading or 5 for static fixed spreading. Fixed spreading with 2 or 3 fault domains isn't supported for zonal deployments"
+  default     = 1
+}
+
+variable "global_tags" {
+  type        = map(string)
+  description = "Populate any custom user defined tags from a map"
+  default     = {}
+}
+
+variable "resource_group" {
+  type        = string
+  description = "Main Resource Group Name"
+}
+
+variable "location" {
+  type        = string
+  description = "App Connector Azure Region"
+}
+
+#### module by default pushes the same single subnet ID for both mgmt_subnet_id and service_subnet_id, so they are effectively the same variable
+#### leaving each as unique values should customer choose to deploy mgmt and service as individual subnets for additional isolation
+variable "ac_subnet_id" {
+  type        = list(string)
+  description = "App Connector subnet id"
+}
+
+variable "ac_username" {
+  type        = string
+  description = "Default App Connector admin/root username"
+  default     = "zsroot"
+}
+
+variable "ssh_key" {
+  type        = string
+  description = "SSH Key for instances"
+}
+
+variable "acvm_instance_type" {
+  type        = string
+  description = "App Connector Image size. Default is Standard_D4s_v5 (4 vCPU Intel). AMD alternatives (Standard_D4as_v5) are typically 10-15% cheaper. For AppProtection workloads, use 8-core instances (Standard_D8s_v5 or Standard_D8as_v5)."
+  default     = "Standard_D4s_v5"
+  validation {
+    condition = contains([
+      # 4-core Intel instances (standard workloads) - Zscaler recommended
+      "Standard_F4s_v2", # Zscaler recommended (retiring Nov 2028)
+      "Standard_D4s_v3", # Zscaler recommended
+      "Standard_D4s_v4",
+      "Standard_D4s_v5",
+      # 4-core AMD instances (cost-optimized, standard workloads)
+      "Standard_D4as_v5",
+      # 8-core Intel instances (AppProtection workloads)
+      "Standard_D8s_v5",
+      # 8-core AMD instances (AppProtection workloads, cost-optimized)
+      "Standard_D8as_v5"
+    ], var.acvm_instance_type)
+    error_message = "Input acvm_instance_type must be set to an approved vm size. Valid options: Standard_F4s_v2, Standard_D4s_v3, Standard_D4s_v4, Standard_D4s_v5, Standard_D4as_v5, Standard_D8s_v5, Standard_D8as_v5."
+  }
+}
+
+variable "user_data" {
+  type        = string
+  description = "Cloud Init data"
+}
+
+variable "identity_ids" {
+  type        = list(string)
+  description = "List of User-assigned Managed Identity resource IDs to attach to the scale set. Used by the OAuth2 onboarding flow so instances can publish their user codes to Key Vault. Leave empty to attach no identity (e.g. provisioning key onboarding)."
+  default     = []
+}
+
+variable "acvm_image_publisher" {
+  type        = string
+  description = "Azure Marketplace Zscaler App Connector Image Publisher"
+  default     = "zscaler"
+}
+
+variable "acvm_image_offer" {
+  type        = string
+  description = "Azure Marketplace Zscaler App Connector Image Offer"
+  default     = "zscaler-private-access"
+}
+
+variable "acvm_image_sku" {
+  type        = string
+  description = "Azure Marketplace Zscaler App Connector Image SKU"
+  default     = "zpa-con-azure"
+}
+
+variable "acvm_image_version" {
+  type        = string
+  description = "Azure Marketplace App Connector Image Version. Pinned by default to a known-good version for reproducible plans; set to \"latest\" to always track the newest published image (may introduce plan drift)."
+  default     = "2025.11.12"
+}
+
+variable "acvm_source_image_id" {
+  type        = string
+  description = "Custom App Connector Source Image ID. Set this value to the path of a local subscription Microsoft.Compute image to override the App Connector deployment instead of using the marketplace publisher"
+  default     = null
+}
+
+variable "backend_address_pool" {
+  type        = string
+  description = "Azure LB Backend Address Pool ID for NIC association"
+  default     = null
+}
+
+# Validation to determine if Azure Region selected supports availabilty zones if desired
+locals {
+  az_supported_regions = ["australiaeast", "Australia East", "brazilsouth", "Brazil South", "canadacentral", "Canada Central", "centralindia", "Central India", "centralus", "Central US", "chinanorth3", "China North 3", "ChinaNorth3", "eastasia", "East Asia", "eastus", "East US", "eastus2", "East US 2", "francecentral", "France Central", "germanywestcentral", "Germany West Central", "japaneast", "Japan East", "koreacentral", "Korea Central", "northeurope", "North Europe", "norwayeast", "Norway East", "southafricanorth", "South Africa North", "southcentralus", "South Central US", "southeastasia", "Southeast Asia", "swedencentral", "Sweden Central", "switzerlandnorth", "Switzerland North", "uaenorth", "UAE North", "uksouth", "UK South", "westeurope", "West Europe", "westus2", "West US 2", "westus3", "West US 3", "usgovvirginia", "US Gov Virginia"]
+  zones_supported = (
+    contains(local.az_supported_regions, var.location) && var.zones_enabled == true
+  )
+}
+
+variable "zones_enabled" {
+  type        = bool
+  description = "Determine whether to provision App Connector VMs explicitly in defined zones (if supported by the Azure region provided in the location variable). If left false, Azure will automatically choose a zone and module will create an availability set resource instead for VM fault tolerance"
+  default     = false
+}
+
+variable "zones" {
+  type        = list(string)
+  description = "Specify which availability zone(s) to deploy VM resources in if zones_enabled variable is set to true"
+  default     = ["1"]
+  validation {
+    condition = (
+      !contains([for zones in var.zones : contains(["1", "2", "3"], zones)], false)
+    )
+    error_message = "Input zones variable must be a number 1-3."
+  }
+}
+
+variable "ac_nsg_id" {
+  type        = string
+  description = "App Connector management interface nsg id"
+}
+
+variable "encryption_at_host_enabled" {
+  type        = bool
+  description = "Enable Azure encryption-at-host for the scale set. NOTE: EncryptionAtHost is a subscription-level feature that must be registered first (az feature register --namespace Microsoft.Compute --name EncryptionAtHost), otherwise VMSS creation fails with 'securityProfile.encryptionAtHost is not valid because the Microsoft.Compute/EncryptionAtHost feature is not enabled for this subscription'. Disabled by default; set to true only on subscriptions where the feature is registered."
+  default     = false
+}
+
+variable "vmss_default_acs" {
+  type        = number
+  description = "Default number of ACs in vmss."
+  default     = 2
+}
+
+variable "vmss_min_acs" {
+  type        = number
+  description = "Minimum number of ACs in vmss."
+  default     = 2
+}
+
+variable "vmss_max_acs" {
+  type        = number
+  description = "Maximum number of ACs in vmss."
+  default     = 10
+}
+
+variable "scale_out_evaluation_period" {
+  type        = string
+  description = "Amount of time the average of scaling metric is evaluated over."
+  default     = "PT5M"
+}
+
+variable "scale_out_threshold" {
+  type        = number
+  description = "Metric threshold for determining scale out."
+  default     = 70
+}
+
+variable "scale_out_count" {
+  type        = string
+  description = "Number of ACs to bring up on scale out event."
+  default     = "1"
+}
+
+variable "scale_out_cooldown" {
+  type        = string
+  description = "Amount of time after scale out before scale out is evaluated again."
+  default     = "PT15M"
+}
+
+variable "scale_in_evaluation_period" {
+  type        = string
+  description = "Amount of time the average of scaling metric is evaluated over."
+  default     = "PT5M"
+}
+
+variable "scale_in_threshold" {
+  type        = number
+  description = "Metric threshold for determining scale in."
+  default     = 50
+}
+
+variable "scale_in_count" {
+  type        = string
+  description = "Number of ACs to bring up on scale in event."
+  default     = "1"
+}
+
+variable "scale_in_cooldown" {
+  type        = string
+  description = "Amount of time after scale in before scale in is evaluated again."
+  default     = "PT15M"
+}
+
+variable "scheduled_scaling_enabled" {
+  type        = bool
+  description = "Enable scheduled scaling on top of metric scaling."
+  default     = false
+}
+
+variable "scheduled_scaling_vmss_min_acs" {
+  type        = number
+  description = "Minimum number of ACs in vmss for scheduled scaling profile."
+  default     = 2
+}
+
+variable "scheduled_scaling_timezone" {
+  type        = string
+  description = "Timezone the times for the scheduled scaling profile are specified in."
+  default     = "Pacific Standard Time"
+}
+
+variable "scheduled_scaling_days_of_week" {
+  type        = list(string)
+  description = "Days of the week to apply scheduled scaling profile."
+  default     = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+}
+
+variable "scheduled_scaling_start_time_hour" {
+  type        = number
+  description = "Hour to start scheduled scaling profile."
+  default     = 9
+}
+
+variable "scheduled_scaling_start_time_min" {
+  type        = number
+  description = "Minute to start scheduled scaling profile."
+  default     = 0
+}
+
+variable "scheduled_scaling_end_time_hour" {
+  type        = number
+  description = "Hour to end scheduled scaling profile."
+  default     = 17
+}
+
+variable "scheduled_scaling_end_time_min" {
+  type        = number
+  description = "Minute to end scheduled scaling profile."
+  default     = 0
+}
