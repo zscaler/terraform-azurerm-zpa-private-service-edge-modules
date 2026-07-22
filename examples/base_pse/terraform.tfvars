@@ -63,7 +63,7 @@
 
 # arm_location                               = "westus2"
 
-## 6. Private Service Edge Azure VM Instance size selection. Uncomment acvm_instance_type line with desired vm size to change.
+## 6. Private Service Edge Azure VM Instance size selection. Uncomment psevm_instance_type line with desired vm size to change.
 ##    (Default: Standard_D4s_v3)
 
 #psevm_instance_type = "Standard_D4s_v3"

@@ -44,8 +44,8 @@ variable "ssh_key" {
 
 variable "instance_size" {
   type        = string
-  description = "The Azure image type/size"
-  default     = "Standard_B1s"
+  description = "The Azure image type/size for the Bastion/jump host. Defaults to the burstable Standard_B2ts_v2. Standard_B1s (the previous default) is retired / capacity-restricted in many regions and fails with SkuNotAvailable."
+  default     = "Standard_B2ts_v2"
 }
 
 variable "instance_image_publisher" {

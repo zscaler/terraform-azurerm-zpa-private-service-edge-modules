@@ -9,11 +9,69 @@ YELLOW=$(tput setaf 3)
 CYAN=$(tput setaf 6)
 RESET=$(tput sgr0)
 
+################################################################################
+# Branding - Zscaler ASCII logo
+################################################################################
+_ZSCALER_ART=(
+"███████╗███████╗ ██████╗ █████╗ ██╗     ███████╗██████╗ "
+"╚══███╔╝██╔════╝██╔════╝██╔══██╗██║     ██╔════╝██╔══██╗"
+"  ███╔╝ ███████╗██║     ███████║██║     █████╗  ██████╔╝"
+" ███╔╝  ╚════██║██║     ██╔══██║██║     ██╔══╝  ██╔══██╗"
+"███████╗███████║╚██████╗██║  ██║███████╗███████╗██║  ██║"
+"╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═╝"
+)
+_TAGLINE="Private Service Edge for Azure"
+
+# Detect whether the terminal supports 24-bit truecolor for the gradient.
+_supports_truecolor() {
+    [ -t 1 ] || return 1
+    [ -n "$NO_COLOR" ] && return 1
+    case "${COLORTERM:-}" in truecolor|24bit) return 0 ;; esac
+    case "${TERM:-}" in *256color*|*kitty*|*iterm*) return 0 ;; esac
+    return 1
+}
+
+print_zscaler_logo() {
+    # No color when not a TTY or NO_COLOR is set: print plain logo.
+    if [ ! -t 1 ] || [ -n "$NO_COLOR" ]; then
+        printf '%s\n' "${_ZSCALER_ART[@]}"
+        printf '%s\n\n' "$_TAGLINE"
+        return
+    fi
+
+    local reset='\033[0m'
+    if _supports_truecolor; then
+        # Blue gradient from (37,99,235) to (147,197,253), matching the
+        # Zscaler MCP server branding.
+        local start_r=37 start_g=99 start_b=235
+        local end_r=147 end_g=197 end_b=253
+        local n=${#_ZSCALER_ART[@]}
+        local i
+        for i in "${!_ZSCALER_ART[@]}"; do
+            local denom=$(( n - 1 )); [ "$denom" -lt 1 ] && denom=1
+            local r=$(( start_r + (end_r - start_r) * i / denom ))
+            local g=$(( start_g + (end_g - start_g) * i / denom ))
+            local b=$(( start_b + (end_b - start_b) * i / denom ))
+            printf '\033[38;2;%d;%d;%dm%s%b\n' "$r" "$g" "$b" "${_ZSCALER_ART[$i]}" "$reset"
+        done
+        printf '\033[38;2;96;165;250m%s%b\n' "$_TAGLINE" "$reset"
+    else
+        local line
+        for line in "${_ZSCALER_ART[@]}"; do
+            printf '\033[34m%s%b\n' "$line" "$reset"
+        done
+        printf '\033[36m%s%b\n' "$_TAGLINE" "$reset"
+    fi
+    printf '\n'
+}
+
 usage()
 {
     echo "Usage: $0 <up|destroy>"
     exit 1
 }
+
+print_zscaler_logo
 
 if [ $# -ne 1 ] ; then
     usage
@@ -28,72 +86,140 @@ else
     esac
 fi
 
-if [[ "$oper" == "up" ]]; then
-    PS3="${CYAN}Select desired deployment: ${RESET}"
-    deployments=("greenfield - Recommended for isolated test/POV deployments. Creates new network infrastructure, and a public jump host" "brownfield - Recommended for prod deployments. Bring-your-own existing network infrastructure customizations + no bastion creation")
-    select deployment in "${deployments[@]}"
+if [[ "$oper" == "up" && ! -e ./.zspserc ]]; then
+    PS3="${CYAN}Select your ZPA Cloud: ${RESET}"
+    zs_clouds=("private.zscaler.com" "zpatwo.net" "zpagov.net" "zpagov.us" "zpabeta.net" "zspreview.net")
+    select zscaler_cloud in "${zs_clouds[@]}"
     do
         case $REPLY in
-            1)
-                echo "Greenfield deployment selected..."
-                echo "${YELLOW}**Caution** These deployments include a publicly accessible jump host and are intended primarily for lab/test environments${RESET}"
-                echo ""
-                deployment=greenfield
-            break
-            ;;
-            2)
-                echo "Brownfield deployment selected..."
-                deployment=brownfield
-            break
-            ;;
-            *) 
-                echo "${RED}Invalid response. Please enter a number selection${RESET}"
+        1)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected..."
+            zscaler_cloud=PRODUCTION
+        break
+        ;;
+        2)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected"
+            zscaler_cloud=ZPATWO
+        break
+        ;;
+        3)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected"
+            zscaler_cloud=GOV
+        break
+        ;;
+        4)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected"
+            zscaler_cloud=GOVUS
+        break
+        ;;
+        5)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected"
+            zscaler_cloud=BETA
+        break
+        ;;
+        6)
+            echo "Zscaler Cloud ${GREEN}$zscaler_cloud${RESET} selected"
+            zscaler_cloud=PREVIEW
+        break
+        ;;
+        *) 
+            echo "${RED}Invalid response. Please enter a number selection${RESET}"
         esac
     done
 fi
 
-if [[ "$deployment" == "greenfield" ]]; then
-    PS3="${CYAN}Select desired deployment type: ${RESET}"
-    dtypes=(
-        "Deploy one or more Private Service Edges in a new Resource Group and VNet"
-        "Deploy a new Resource Group and VNet only - No Zscaler PSE resources"  
-    )
-    select greenfield_type in "${dtypes[@]}"
-    do
-        case $REPLY in
-            1)
-                echo "Deployment type base_pse selected..."
-                dtype=base_pse
+if [[ "$oper" == "up" ]]; then
+    if [[ -e ./.zspserc ]]; then
+        echo "${YELLOW}Existing deployment configuration file identified...${RESET}"
+        # initialize environment variables
+        . ./.zspserc
+        echo "Refreshing Deployment Type: ${GREEN}$dtype${RESET}..." 
+    else #Prompt for deployment selection
+        PS3="${CYAN}Select desired deployment: ${RESET}"
+        deployments=("greenfield - Recommended for isolated test/POV deployments. Creates new network infrastructure and a public jump host" "brownfield - Recommended for prod deployments. Bring-your-own existing network infrastructure customizations + no bastion creation")
+        select deployment in "${deployments[@]}"
+        do
+            case $REPLY in
+                1)
+                    echo "${GREEN}Greenfield deployment selected...${RESET}"
+                    echo "${YELLOW}**Caution** These deployments include a publicly accessible jump host and is intended primarily for lab/test environments${RESET}"
+                    echo ""
+                    deployment=greenfield
                 break
                 ;;
-            2)
-                echo "Deployment type base selected..."
-                dtype=base
+                2)
+                    echo "${GREEN}Brownfield deployment selected...${RESET}"
+                    deployment=brownfield
                 break
                 ;;
-            *) 
-                echo "${RED}Invalid response. Please enter a number selection${RESET}"
-        esac
-    done
-elif [[ "$deployment" == "brownfield" ]]; then
-    PS3="${CYAN}Select desired deployment type: ${RESET}"
-    dtypes=(
-        "Deploy multiple Private Service Edges in a new or existing Resource Group and VNet"
-    )
-    select brownfield_type in "${dtypes[@]}"
-    do
-        case $REPLY in
-            1)
-                echo "Deployment type pse selected..."
-                dtype=pse
+                *) 
+                    echo "${RED}Invalid response. Please enter a number selection${RESET}"
+            esac
+        done
+
+        while true; do
+            read -r -p "${CYAN}Deploy Private Service Edges in Auto Scaling VMSS? [yes/no]: ${RESET}" response
+            case $response in 
+                yes|y )
+                    if [[ "$deployment" == "greenfield" ]]; then 
+                        echo "${GREEN}Proceeding with greenfield Virtual Machine Scale Sets configuration...${RESET}"
+                        vmss_enabled=true
+                    elif [[ "$deployment" == "brownfield" ]]; then
+                        echo "${GREEN}Proceeding with brownfield (pse_vmss) Virtual Machine Scale Sets configuration...${RESET}"
+                        vmss_enabled=true
+                        #implicitly set dtype as pse_vmss for brownfield + vmss
+                        dtype=pse_vmss
+                    fi
                 break
                 ;;
-            *) 
-                echo "${RED}Invalid response. Please enter a number selection${RESET}"
-        esac
-    done
-else
-    dtype=$dtype
+                no|n )
+                    if [[ "$deployment" == "greenfield" ]]; then 
+                        echo "${GREEN}Proceeding with greenfield manual scaling configuration...${RESET}"
+                        vmss_enabled=false
+                    elif [[ "$deployment" == "brownfield" ]]; then
+                        echo "${GREEN}Proceeding with brownfield (pse) manual scaling configuration...${RESET}"
+                        vmss_enabled=false
+                        #implicitly set dtype as pse brownfield + no vmss
+                        dtype=pse
+                    fi
+                break
+                ;;
+                    * ) echo "${RED}Invalid response. Please enter yes or no${RESET}";;
+            esac
+        done
+    fi
+
+    if [[ "$deployment" == "greenfield" ]]; then
+        PS3="${CYAN}Select desired deployment type: ${RESET}"
+        if [[ "$vmss_enabled" == "false" ]]; then
+            dtypes=(
+                "Deploy 1 or more Private Service Edges in a new Resource Group and VNet"
+                "Deploy a new Resource Group, VNet, and Bastion Host only - No Private Service Edge resources"  
+            )
+            select greenfield_type in "${dtypes[@]}"
+            do
+                case $REPLY in
+                    1)
+                        echo "Deployment type base_pse selected..."
+                        dtype=base_pse
+                    break
+                    ;;
+                    2)
+                        echo "Deployment type base selected..."
+                        dtype=base
+                    break
+                    ;;
+                    *) 
+                        echo "${RED}Invalid response. Please enter a number selection${RESET}"
+                esac
+            done
+        elif [[ "$vmss_enabled" == "true" ]]; then
+            echo "Deployment type base_pse_vmss selected..."
+            dtype=base_pse_vmss
+        fi
+    else
+        dtype=$dtype
+    fi
 fi
 
 echo "Discovering processor architecture..."
@@ -137,7 +263,7 @@ fi
 echo "Checking Azure Environment Variables and Private Service Edge bootstrap requirements... For custom/byo deployments, please stop and refer to the README and terraform.tfvars file instructions"
 if [[ "$oper" == "up" && ! -e ./.zspserc ]]; then
 first_run="yes"
-
+    echo "export zscaler_cloud='$zscaler_cloud'" > .zspserc
     # Azure Region selection
     PS3="${CYAN}Select desired Azure region: ${RESET}"
     region_list=(
@@ -152,12 +278,6 @@ first_run="yes"
 	"centralindia"
 	"centralus"
 	"centraluseuap"
-	#"chinaeast"
-	#"chinaeast2"
-    #"chinaeast3"
-	#"chinanorth"
-	#"chinanorth2"
-	#"chinanorth3"
 	"eastasia"
 	"eastus"
 	"eastus2"
@@ -201,26 +321,27 @@ first_run="yes"
 	"westus"
 	"westus2"
 	"westus3"
-        )
-        select region_selection in "${region_list[@]}"; do
-            for region_choice in "${region_list[@]}"; do
-                if [[ $region_choice == $region_selection ]]; then
-                    azure_location=$region_selection
-                    echo "Azure region ${GREEN}$azure_location${RESET} selected..."
-                    echo "export TF_VAR_arm_location='$azure_location'" > .zspserc
-		    if [[ ${azure_location} = "china"*  ]]; then
+    )
+    select region_selection in "${region_list[@]}"; do
+        for region_choice in "${region_list[@]}"; do
+            if [[ $region_choice == $region_selection ]]; then
+                azure_location=$region_selection
+                echo "Azure region ${GREEN}$azure_location${RESET} selected..."
+                echo "export TF_VAR_arm_location='$azure_location'" >> .zspserc
+                #Azure China not supported. leaving code for future use
+		        if [[ ${azure_location} = "china"*  ]]; then
             		echo "${YELLOW}Azure China region detected. Setting ARM_ENVIRONMENT...${RESET}"
             		echo "export ARM_ENVIRONMENT=china" >> .zspserc
             		echo "export ARM_SKIP_PROVIDER_REGISTRATION=true" >> .zspserc
-        	   elif [[ ${azure_location} = "usgov"* || ${azure_location} = "ussec"* || ${azure_location} = "usdod"* ]]; then
+        	    elif [[ ${azure_location} = "usgov"* || ${azure_location} = "ussec"* || ${azure_location} = "usdod"* ]]; then
             		echo "${YELLOW} US Gov region detected. Setting ARM_ENVIRONMENT...${RESET}"
            	        echo "export ARM_ENVIRONMENT=usgovernment" >> .zspserc
             		echo "export ARM_SKIP_PROVIDER_REGISTRATION=true" >> .zspserc
-        	   fi
-                   break 2
-                fi
-            done
+        	    fi
+                break 2
+            fi
         done
+    done
 
     echo "Checking Azure Environment Variables..."
     read -r -p "${CYAN}Enter Azure Subcription ID: ${RESET}" azure_subscription_id
@@ -266,7 +387,7 @@ first_run="yes"
                         echo "$bastionipinput - IP/Netmask valid"
                     else
                         echo "${RED}$bastionipinput is not valid IP CIDR format${RESET}"
-                        echo "${YELLOW}Delete .zspserc file and re-run zsec up...${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
                         exit 1
                     fi
                 break
@@ -279,6 +400,16 @@ first_run="yes"
                 esac
             done
         fi
+
+        # Bastion/jump host VM size. Standard_B1s (the old default) is retired /
+        # capacity-restricted in many regions, so default to the newer burstable
+        # Standard_B2ts_v2 and let the user override with any region-available SKU.
+        bastion_instance_type_default=Standard_B2ts_v2
+        echo "${CYAN}Bastion/jump host VM size. Suggested burstable options: Standard_B2ts_v2, Standard_B2s_v2, Standard_B1ms.${RESET}"
+        read -r -p "${CYAN}Enter desired Azure VM size for the Bastion host. [Default=$bastion_instance_type_default]: ${RESET}" bastion_instance_type_input
+        bastion_instance_type=${bastion_instance_type_input:-$bastion_instance_type_default}
+        echo "${GREEN}Bastion VM size: ${bastion_instance_type} selected...${RESET}"
+        echo "export TF_VAR_bastion_instance_type=${bastion_instance_type}" >> .zspserc
     fi
 
     # if .zspserc is not present we'll assume that Azure env was never set
@@ -323,7 +454,7 @@ first_run="yes"
                     |grep -o '"state":"[^"]*' | awk -F'"' '{print $4}')
 
                 if [ "$response" = "Registered" ]; then
-                    echo "Setting encryption_at_host_enabled to true..."
+                    echo "${GREEN}Setting encryption_at_host_enabled to true...${RESET}"
                     encryption_at_host_enabled=true
                 else
                     echo "${RED}Error: Azure Subscription $ARM_SUBSCRIPTION_ID is not registered to support host encryption. Please refer to documentation.${RESET}"
@@ -346,57 +477,91 @@ first_run="yes"
             echo "export ZPA_CLIENT_SECRET=\"${zpa_client_secret}\"" >> .zspserc
             read -r -p "${CYAN}Enter ZPA Customer ID: ${RESET}" zpa_customer_id
             echo "export ZPA_CUSTOMER_ID=\"${zpa_customer_id}\"" >> .zspserc
-
-            read -r -p "${CYAN}Do you already have a Service Edge provisioning key to use? [yes/no] ${RESET}" prov_key_response
-            case $prov_key_response in
-                yes|y )
-                read -r -p "${CYAN}Enter the name of your existing Service Edge provisioning key: ${RESET}" byo_provisioning_key_name
-                echo "export TF_VAR_byo_provisioning_key=true" >> .zspserc
-                echo "export TF_VAR_byo_provisioning_key_name=${byo_provisioning_key_name}" >> .zspserc
-                break
-                ;;
-                no|n )
-                echo "${GREEN}Terraform will be creating a new Service Edge Group and provisioning key${RESET}"
-                echo "${YELLOW}Before proceeding, make sure you have entered all variable requirements from steps 1 and 2 in $dtype/terraform.tfvars${RESET}"
-                break
-                ;;
-                * ) echo "${RED}Invalid response. Please enter yes or no${RESET}";;
-            esac
+        break
         done
 
+        # Private Service Edge onboarding method. OAuth2 (default, recommended)
+        # enrolls Service Edges via OAuth2 user codes relayed through Azure Key
+        # Vault. provisioning_key uses the legacy provisioning key flow.
+        PS3="${CYAN}Select Private Service Edge onboarding method: ${RESET}"
+        onboarding_methods=("oauth" "provisioning_key")
+        select onboarding_method in "${onboarding_methods[@]}"
+        do
+            case $REPLY in
+                1)
+                    onboarding_method=oauth
+                    echo "Onboarding method ${GREEN}OAuth2${RESET} selected (recommended)"
+                break
+                ;;
+                2)
+                    onboarding_method=provisioning_key
+                    echo "Onboarding method ${GREEN}provisioning key${RESET} selected"
+                break
+                ;;
+                *) echo "${RED}Invalid response. Please enter a number selection${RESET}";;
+            esac
+        done
+        echo "export TF_VAR_onboarding_method='${onboarding_method}'" >> .zspserc
+
+        if [[ "$onboarding_method" == "provisioning_key" ]]; then
+            while true; do
+                read -r -p "${CYAN}Do you already have a Service Edge provisioning key to use? [yes/no]: ${RESET}" prov_key_response
+                case $prov_key_response in
+                    yes|y )
+                        read -r -p "${CYAN}Enter the name of your existing Service Edge provisioning key: ${RESET}" byo_provisioning_key_name
+                        echo "export TF_VAR_byo_provisioning_key=true" >> .zspserc
+                        echo "export TF_VAR_byo_provisioning_key_name=${byo_provisioning_key_name}" >> .zspserc
+                    break
+                    ;;
+                    no|n )
+                        echo "${GREEN}Terraform will be creating a new Service Edge Group and provisioning key${RESET}"
+                        echo "${YELLOW}Before proceeding, make sure you have entered all variable requirements from steps 1 and 2 in $dtype/terraform.tfvars${RESET}"
+                    break
+                    ;;
+                    * ) echo "${RED}Invalid response. Please enter yes or no${RESET}";;
+                esac
+            done
+        else
+            echo "${GREEN}Terraform will onboard the Private Service Edge(s) via OAuth2 user codes relayed through Azure Key Vault${RESET}"
+        fi
+
+        # Private Service Edge VM type. The list is limited to sizes valid across
+        # both the fixed-VM and VMSS deployment types.
         PS3="${CYAN}Select desired Azure VM type for Private Service Edge: ${RESET}"
         vm_sizes=("Standard_D4s_v3" "Standard_F4s_v2")
         select psevm_instance_type in "${vm_sizes[@]}"
         do
             case $REPLY in
                 1)
-                echo "Private Service Edge VM type $psevm_instance_type selected"
-                echo "export TF_VAR_psevm_instance_type='$psevm_instance_type'" >> .zspserc
+                    echo "${GREEN}Private Service Edge VM type $psevm_instance_type selected${RESET}"
+                    echo "export TF_VAR_psevm_instance_type='$psevm_instance_type'" >> .zspserc
                 break
                 ;;
                 2)
-                echo "Private Service Edge VM type $psevm_instance_type selected"
-                echo "export TF_VAR_psevm_instance_type='$psevm_instance_type'" >> .zspserc
+                    echo "${GREEN}Private Service Edge VM type $psevm_instance_type selected${RESET}"
+                    echo "export TF_VAR_psevm_instance_type='$psevm_instance_type'" >> .zspserc
                 break
                 ;;
                 *) 
-                echo "${RED}Invalid response. Please enter a number selection${RESET}"
+                    echo "${RED}Invalid response. Please enter a number selection${RESET}"
             esac
         done 
 
         pse_count_default=2
-        read -r -p "${CYAN}Enter how many Private Service Edges to deploy? [Default=$pse_count_default]: ${RESET}" pse_count_input
-        pse_count=${pse_count_input:-$pse_count_default}
-        if ((pse_count >= 1 && pse_count <= 20)); then
-            echo "Terraform will deploy ${GREEN}${pse_count} Private Service Edges${RESET} in ${azure_location}"
-            echo "export TF_VAR_pse_count=${pse_count}" >> .zspserc
-        else
-            echo "${RED}Invalid pse_count value. Must be a number between 1 and 20${RESET}"
-            echo "${YELLOW}Delete .zspserc file and re-run zsec up...${RESET}"
-            exit 1
+        if [[ "$dtype" != *"vmss"* ]]; then
+            read -r -p "${CYAN}Enter how many Private Service Edges to deploy? [Default=$pse_count_default]: ${RESET}" pse_count_input
+            pse_count=${pse_count_input:-$pse_count_default}
+            if ((pse_count >= 1 && pse_count <= 20)); then
+                echo "${dtype} will deploy ${pse_count} Private Service Edges in ${azure_location}"
+                echo "export TF_VAR_pse_count=${pse_count}" >> .zspserc
+            else
+                echo "${RED}Invalid pse_count value. Must be a number between 1 and 20${RESET}"
+                echo "Delete .zspserc file and re-run zspse up..."
+                exit 1
+            fi
         fi
 
-        az_supported_regions=["australiaeast","brazilsouth","canadacentral","centralindia","centralus","chinanorth3","eastasia","eastus","eastus2","francecentral","germanywestcentral","japaneast","koreacentral","northeurope","norwayeast","southafricanorth","southcentralus","southeastasia","swedencentral","switzerlandnorth","uaenorth","uksouth","westeurope","westus2","westus3"]
+        az_supported_regions=["australiaeast","brazilsouth","canadacentral","centralindia","centralus","eastasia","eastus","eastus2","francecentral","germanywestcentral","japaneast","koreacentral","northeurope","norwayeast","southafricanorth","southcentralus","southeastasia","swedencentral","switzerlandnorth","uaenorth","uksouth","westeurope","westus2","westus3"]
         if [[ ${az_supported_regions[*]} =~ $azure_location ]]; then
             echo "${GREEN}Azure region ${azure_location} supports Zones deployment...${RESET}"
             zones_enabled_default=no
@@ -420,45 +585,41 @@ first_run="yes"
         else
             echo "${YELLOW}Azure region ${azure_location} does not support Zones. Proceeding...${RESET}"
         fi
-        
+
         # Azure number of Availability Zones selection
         if [[ "$zones_enabled" == "true" ]]; then
-                PS3="${CYAN}Select how many Availability Zone subnets to deploy across: ${RESET}"
-                zones_list=(
-                    "1 availability zone"
-                    "2 availability zones"
-                    "3 availability zones"
-                    )
-                select zone_selection in "${zones_list[@]}"
-                do
-                    case $REPLY in
-                    1 )
-                        echo "One Availability Zone selected..."
-                        zones_count=1
-                    break
-                    ;;
-                    2 )
-                        echo "Two Availability Zones selected..."
-                        zones_count=2
-                    break
-                    ;;
-                    3 )
-                        echo "Three Availability Zones selected..."
-                        zones_count=3
-                    break
-                    ;;
-                    *) 
-                        echo "${RED}Invalid response. Please enter a number selection${RESET}"
-                    esac
-                done
+            PS3="${CYAN}Select how many Availability Zone subnets to deploy across: ${RESET}"
+            zones_list=(
+                "1 availability zone"
+                "2 availability zones"
+                "3 availability zones"
+            )
+            select zone_selection in "${zones_list[@]}"
+            do
+                case $REPLY in
+                1 )
+                    echo "${GREEN}One Availability Zone selected...${RESET}"
+                    zones_count=1
+                break
+                ;;
+                2 )
+                    echo "${GREEN}Two Availability Zones selected...${RESET}"
+                    zones_count=2
+                break
+                ;;
+                3 )
+                    echo "${GREEN}Three Availability Zones selected...${RESET}"
+                    zones_count=3
+                break
+                ;;
+                *) 
+                    echo "${RED}Invalid response. Please enter a number selection${RESET}"
+                esac
+            done
         fi
-            
+
         if [[ "$zones_count" < 3 ]]; then
-            if [[ "$dtype" == "base_1"* ]]; then
-                PS3="${CYAN}Select which availablity zone to deploy in: ${RESET}"
-            else
-                PS3="${CYAN}Select which availablity zones to deploy across: ${RESET}"
-            fi
+           PS3="${CYAN}Select which availablity zones to deploy across: ${RESET}"
             if [[ "$zones_count" == 1 ]]; then
                 zones_options=(
                     "Zone 1"
@@ -469,27 +630,27 @@ first_run="yes"
                 do
                     case $REPLY in
                     1 )
-                        echo "Private Service Edge resources will be deployed in AZ 1"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 1${RESET}"
                         echo "export TF_VAR_zones='[\"1\"]'" >> .zspserc
-                        break
-                        ;;
+                    break
+                    ;;
                     2 )
-                        echo "Private Service Edge resources will be deployed in AZ 2"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 2${RESET}"
                         echo "export TF_VAR_zones='[\"2\"]'" >> .zspserc
-                        break
-                        ;;
+                    break
+                    ;;
                     3 )
-                        echo "Private Service Edge resources will be deployed in AZ 3"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 3${RESET}"
                         echo "export TF_VAR_zones='[\"3\"]'" >> .zspserc
-                        break
-                        ;;
+                    break
+                    ;;
                     *) 
                         echo "${RED}Invalid response. Please enter a number selection${RESET}"
                     esac
                 done
             else
                 zones_options=(
-                        "Zones 1 and 2"
+                    "Zones 1 and 2"
                     "Zones 1 and 3"
                     "Zones 2 and 3"
                 )
@@ -497,34 +658,222 @@ first_run="yes"
                 do
                     case $REPLY in
                     1 )
-                        echo "Private Service Edge resources will be deployed in AZ 1 and AZ 2"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 1 and AZ 2${RESET}"
                         echo "export TF_VAR_zones='[\"1\", \"2\"]'" >> .zspserc
-                        break
-                        ;;
+                    break
+                    ;;
                     2 )
-                        echo "Private Service Edge resources will be deployed in AZ 1 and AZ 3"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 1 and AZ 3${RESET}"
                         echo "export TF_VAR_zones='[\"1\", \"3\"]'" >> .zspserc
-                        break
-                        ;;
+                    break
+                    ;;
                     3 )
-                        echo "Private Service Edge resources will be deployed in AZ 2 and AZ 3"
+                        echo "${GREEN}Private Service Edge resources will be deployed in AZ 2 and AZ 3${RESET}"
                         echo "export TF_VAR_zones='[\"2\", \"3\"]'" >> .zspserc
-                        break
-                        ;;
-                        *) 
+                    break
+                    ;;
+                    *) 
                         echo "${RED}Invalid response. Please enter a number selection${RESET}"
                     esac
                 done
             fi
         else
-            echo "Private Service Edge resources will be deployed in AZ1, AZ 2 and AZ 3"
+            echo "${GREEN}Private Service Edge resources will be deployed in AZ 1, AZ 2 and AZ 3${RESET}"
             echo "export TF_VAR_zones='[\"1\", \"2\", \"3\"]'" >> .zspserc
+        fi
+
+        # VMSS specific inputs
+        if [[ $dtype == *"vmss"* ]]; then
+            if [[ "$zones_enabled" == "true" ]]; then
+                echo "${GREEN}Explicit Availability Zones based deployed detected... Terraform will create a total of $zones_count VMSS; one per designated AZ${RESET}"
+            else
+                echo "${GREEN}No explicit Availability Zones were specified... Terraform will create a single VMSS${RESET}"
+            fi
+            #########################################
+            # Min/Default/Max VMSS Configuration
+            #########################################
+            # min count
+            vmss_min_default=2
+            read -r -p "${CYAN}Enter the minimum amount of Private Service Edges per VMSS? [Default=$vmss_min_default]: ${RESET}" vmss_min_input
+            vmss_min=${vmss_min_input:-$vmss_min_default}
+            if (( $vmss_min < 1 || $vmss_min > 10 )); then
+                echo "${RED}Invalid vmss_min value. Must be a number between 1 and 10${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            # default count
+            vmss_default_default=2
+            read -r -p "${CYAN}Enter the default amount of Private Service Edges per VMSS? [Default=$vmss_default_default]: ${RESET}" vmss_default_input
+            vmss_default=${vmss_default_input:-$vmss_default_default}
+            if (( $vmss_default < 1 || $vmss_default > 10 )); then
+                echo "${RED}Invalid vmss_default value. Must be a number between 1 and 10${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            # max count
+            vmss_max_default=10
+            read -r -p "${CYAN}Enter the maximum amount of Private Service Edges per VMSS? [Default=$vmss_max_default]: ${RESET}" vmss_max_input
+            vmss_max=${vmss_max_input:-$vmss_max_default}
+            if (( $vmss_max < 1 || $vmss_max > 10 )); then
+                echo "${RED}Invalid vmss_max value. Must be a number between 1 and 10${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            # validate values
+            if (( $vmss_default < $vmss_min || $vmss_default > $vmss_max )); then
+                echo "${RED}Invalid vmss_default value. Must be a number between vmss_min and vmss_max${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            if [[ "$zones_enabled" == "true" ]]; then
+                echo "${GREEN}${dtype} will deploy $zones_count VMSS each with min: ${vmss_min} default: ${vmss_default} max: ${vmss_max} Private Service Edges in ${azure_location}${RESET}"
+            else
+                echo "${GREEN}${dtype} will deploy 1 VMSS with min: ${vmss_min} default: ${vmss_default} max: ${vmss_max} Private Service Edges in ${azure_location}${RESET}"
+            fi
+            echo "export TF_VAR_vmss_min_pses=${vmss_min}" >> .zspserc
+            echo "export TF_VAR_vmss_default_pses=${vmss_default}" >> .zspserc
+            echo "export TF_VAR_vmss_max_pses=${vmss_max}" >> .zspserc
+
+            #########################################
+            # Scale In/Out Threshold Configuration
+            #########################################
+            # Scale In threshold count
+            scale_in_default=30
+            read -r -p "${CYAN}Enter the scale in threshold for scale sets? This value refers to percent CPU utilization. [Default=$scale_in_default]: ${RESET}" scale_in_input
+            scale_in=${scale_in_input:-$scale_in_default}
+            if (( $scale_in < 1 || $scale_in > 100 )); then
+                echo "${RED}Invalid scale_in value. Must be a number between 1 and 100${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            # Scale Out threshold count
+            scale_out_default=70
+            read -r -p "${CYAN}Enter the scale out threshold for scale sets? This value refers to percent CPU utilization. [Default=$scale_out_default]: ${RESET}" scale_out_input
+            scale_out=${scale_out_input:-$scale_out_default}
+            if (( $scale_out < 1 || $scale_out > 100 || $scale_out <= $scale_in)); then
+                echo "${RED}Invalid scale_out value. Must be a number between 1 and 100 and be greater than scale_in value${RESET}"
+                echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                exit 1
+            fi
+
+            echo "export TF_VAR_scale_in_threshold=${scale_in}" >> .zspserc
+            echo "export TF_VAR_scale_out_threshold=${scale_out}" >> .zspserc
+
+            #########################################
+            # Scheduled Scaling Configuration
+            #########################################
+            # enable/disable scheduled scaling
+            while true; do
+                read -r -p "${CYAN}Do you want to enable scheduled scaling on the VMSS? [yes/no]: ${RESET}" response
+                case $response in 
+                no|n ) 
+                    echo "${GREEN}Skipping scheduled scaling configuration...${RESET}"
+                break
+                ;;
+                yes|y )
+                # min count
+                    vmss_sched_min_default=2
+                    read -r -p "${CYAN}Enter the minimum amount of scheduled Private Service Edges in VMSS? [Default=$vmss_sched_min_default]: ${RESET}" vmss_sched_min_input
+                    vmss_sched_min=${vmss_sched_min_input:-$vmss_sched_min_default}
+                    if (( $vmss_sched_min < 1 || $vmss_sched_min > 20 )); then
+                        echo "${RED}Invalid vmss_sched_min value. Must be a number between 1 and 20${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    elif (( $vmss_sched_min > $vmss_max )); then
+                        echo "${RED}Invalid vmss_sched_min value. Must be a number between less than or equal to vmss_max${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    fi
+
+                    # days of the week
+                    days_of_week=()
+                    potential_days_of_week=("Sunday" "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday")
+                    for day in ${potential_days_of_week[@]}; do
+                        while true; do
+                            read -r -p "${CYAN}Apply Scheduled Scaling Policy on ${day}? [yes/no]: ${RESET}" resp
+                            case $resp in 
+                            no|n ) 
+                                echo "${GREEN}Not configuring ${day} on Scheduled Scaling configuration...${RESET}"
+                            break
+                            ;;
+                            yes|y )
+                                echo "${GREEN}Adding ${day} on Scheduled Scaling configuration...${RESET}"
+                                days_of_week+=($day)
+                            break
+                            ;;
+                            * ) echo "${RED}Invalid response. Please enter yes or no${RESET}";;
+                            esac
+                        done
+                    done
+                    #format days of week array into list
+                    days_of_week_str="'["
+                    print_str=""
+                    for day in ${days_of_week[@]}; do
+                        days_of_week_str+="\"${day}\", "
+                        print_str+="${day} "
+                    done
+                    days_of_week_str+="]'"
+                    echo "${GREEN}Configuring the following days on the Scheduled Scaling Policy: ${print_str}${RESET}"
+                        
+                    # start time hour
+                    start_hour_default=9
+                    read -r -p "${CYAN}Enter the start time hour for the scheduled scaling configuration? [Default=$start_hour_default]: ${RESET}" start_hour_input
+                    start_hour=${start_hour_input:-$start_hour_default}
+                    if (( $start_hour < 0 || $start_hour > 23 )); then
+                        echo "${RED}Invalid start_hour value. Must be a number between 0 and 23${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    fi
+                    # start time minute
+                    start_min_default=0
+                    read -r -p "${CYAN}Enter the start time min for the scheduled scaling configuration? [Default=$start_min_default]: ${RESET}" start_min_input
+                    start_min=${start_min_input:-$start_min_default}
+                    if (( $start_min < 0 || $start_min > 59 )); then
+                        echo "${RED}Invalid start_min value. Must be a number between 0 and 59${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    fi
+                    # end time hour
+                    end_hour_default=17
+                    read -r -p "${CYAN}Enter the end time hour for the scheduled scaling configuration? [Default=$end_hour_default]: ${RESET}" end_hour_input
+                    end_hour=${end_hour_input:-$end_hour_default}
+                    if (( $end_hour < 0 || $end_hour > 23 )); then
+                        echo "${RED}Invalid end_hour value. Must be a number between 0 and 23${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    fi
+                    # end time minute
+                    end_min_default=30
+                    read -r -p "${CYAN}Enter the end time min for the scheduled scaling configuration? [Default=$end_min_default]: ${RESET}" end_min_input
+                    end_min=${end_min_input:-$end_min_default}
+                    if (( $end_min < 0 || $end_min > 59 )); then
+                        echo "${RED}Invalid end_min value. Must be a number between 0 and 59${RESET}"
+                        echo "${YELLOW}Delete .zspserc file and re-run zspse up...${RESET}"
+                        exit 1
+                    fi
+
+                    echo "export TF_VAR_scheduled_scaling_enabled=true" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_vmss_min_pses=${vmss_sched_min}" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_days_of_week=${days_of_week_str}" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_start_time_hour=${start_hour}" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_start_time_min=${start_min}" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_end_time_hour=${end_hour}" >> .zspserc
+                    echo "export TF_VAR_scheduled_scaling_end_time_min=${end_min}" >> .zspserc
+                break
+                ;;
+                * ) echo "${RED}Invalid response. Please enter yes or no${RESET}";;
+                esac
+            done
         fi
     fi
 fi
 
-
- #add local bin directory to PATH
+# add local bin directory to PATH
 if ! grep -Fxq "export PATH=\${PATH}:\${PWD}/bin" .zspserc; then
     echo 'export PATH=${PATH}:${PWD}/bin' >> .zspserc
 fi

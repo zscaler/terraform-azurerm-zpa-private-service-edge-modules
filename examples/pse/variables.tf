@@ -56,11 +56,24 @@ variable "psevm_instance_type" {
   default     = "Standard_D4s_v3"
   validation {
     condition = (
+      var.psevm_instance_type == "Standard_D2s_v3" ||
       var.psevm_instance_type == "Standard_D4s_v3" ||
       var.psevm_instance_type == "Standard_F4s_v2"
     )
     error_message = "Input psevm_instance_type must be set to an approved vm size."
   }
+}
+
+variable "use_zscaler_image" {
+  type        = bool
+  description = "Whether to use a Zscaler Private Service Edge Marketplace image (true) that already ships the zpa-service-edge package, or a RHEL9 base image bootstrapped via the Zscaler yum repo (false, the Azure default)."
+  default     = false
+}
+
+variable "accept_marketplace_agreement" {
+  type        = bool
+  description = "Whether to accept the Private Service Edge Azure Marketplace image terms. A marketplace agreement is a subscription-level singleton; leave false if the terms are already accepted in the subscription (the common case), set true only for a new subscription where they have never been accepted."
+  default     = false
 }
 
 variable "psevm_image_publisher" {
@@ -121,10 +134,28 @@ variable "reuse_nsg" {
   default     = "false"
 }
 
+# ZPA Private Service Edge onboarding method selection
+variable "onboarding_method" {
+  type        = string
+  description = "Private Service Edge onboarding method. \"oauth\" (default, recommended) enrolls Service Edges via OAuth2 user codes relayed through Azure Key Vault. \"provisioning_key\" uses the legacy provisioning key flow."
+  default     = "oauth"
+
+  validation {
+    condition     = var.onboarding_method == "oauth" || var.onboarding_method == "provisioning_key"
+    error_message = "Input onboarding_method must be either \"oauth\" or \"provisioning_key\"."
+  }
+}
+
+variable "pse_group_name" {
+  type        = string
+  description = "Optional name for the Service Edge Group. Supports {region}, {name_prefix}, {random_suffix} substitution. If empty, a default name is generated."
+  default     = ""
+}
+
 # ZPA Provider specific variables for Service Edge Group and Provisioning Key creation
 variable "byo_provisioning_key" {
   type        = bool
-  description = "Bring your own PSE Provisioning Key. Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name"
+  description = "Bring your own PSE Provisioning Key. Setting this variable to true will effectively instruct this module to not create any resources and only reference data resources from values provided in byo_provisioning_key_name. Implies the provisioning key onboarding method."
   default     = false
 }
 
@@ -132,6 +163,12 @@ variable "byo_provisioning_key_name" {
   type        = string
   description = "Existing PSE Provisioning Key name"
   default     = "provisioning-key-tf"
+}
+
+variable "provisioning_key_name" {
+  type        = string
+  description = "Optional name for the Provisioning Key. If empty, the Service Edge Group name is used."
+  default     = ""
 }
 
 variable "enrollment_cert" {
@@ -151,6 +188,12 @@ variable "pse_group_description" {
   type        = string
   description = "Optional: Description of the Service Edge Group"
   default     = "This Service Edge Group belongs to: "
+}
+
+variable "pse_group_city_country" {
+  type        = string
+  description = "Optional: City and country of this Service Edge Group. example 'San Jose, US'"
+  default     = ""
 }
 
 variable "pse_group_enabled" {
@@ -362,4 +405,38 @@ variable "byo_nsg_names" {
   type        = list(string)
   description = "Management Network Security Group ID for Service Edge association"
   default     = null
+}
+
+################################################################################
+# OAuth2 onboarding variables (Key Vault relay)
+################################################################################
+variable "byo_key_vault" {
+  type        = bool
+  description = "Bring your own Azure Key Vault for the OAuth2 token relay. If false, a new RBAC-enabled Key Vault is created for the OAuth2 flow."
+  default     = false
+}
+
+variable "byo_key_vault_name" {
+  type        = string
+  description = "Existing Key Vault name to relay OAuth2 user codes through. Required if byo_key_vault is true."
+  default     = ""
+}
+
+# tflint-ignore: terraform_unused_declarations # Public BYO input; consumed by the caller/tfvars, not referenced directly in this example.
+variable "byo_key_vault_rg" {
+  type        = string
+  description = "Resource group of the existing Key Vault. Required if byo_key_vault is true."
+  default     = ""
+}
+
+variable "oauth_token_wait_seconds" {
+  type        = number
+  description = "Maximum time (seconds) to poll Key Vault for the Service Edge VMs' OAuth2 user codes before failing the apply. The poller starts immediately and returns as soon as all codes are published, so this is an upper bound, not a fixed wait. Allow generous headroom: the VM installs the Azure CLI at boot (3-5 min of dependency builds) BEFORE it can publish, on top of VM boot and Service Edge token generation."
+  default     = 900
+}
+
+variable "oauth_token_poll_interval_seconds" {
+  type        = number
+  description = "How often (seconds) to poll Key Vault for the OAuth2 user codes. Lower values give faster feedback at the cost of more Azure CLI calls."
+  default     = 10
 }

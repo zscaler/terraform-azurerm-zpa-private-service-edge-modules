@@ -1,19 +1,19 @@
 ################################################################################
-# Create ZPA Private Service Edge Provisioning Key
+# Create ZPA Service Edge Provisioning Key
 ################################################################################
-# Retrieve Service Edge Enrollment Cert ID
-data "zpa_enrollment_cert" "service_edge_cert" {
+# Retrieve Connector Enrollment Cert ID
+data "zpa_enrollment_cert" "connector_cert" {
   name = var.enrollment_cert
 }
 
-# Create Private Service Edge provisioning key
+# Create Service Edge provisioning key
 resource "zpa_provisioning_key" "provisioning_key" {
   count              = var.byo_provisioning_key == false ? 1 : 0
   name               = var.provisioning_key_name
   enabled            = var.provisioning_key_enabled
   association_type   = var.provisioning_key_association_type
   max_usage          = var.provisioning_key_max_usage
-  enrollment_cert_id = data.zpa_enrollment_cert.service_edge_cert.id
+  enrollment_cert_id = data.zpa_enrollment_cert.connector_cert.id
   zcomponent_id      = var.pse_group_id
 }
 
