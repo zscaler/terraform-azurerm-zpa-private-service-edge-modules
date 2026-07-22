@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/compare/v1.2.2...v1.3.0) (2026-07-22)
+
+### Features
+
+* Add OAuth2 onboarding, VMSS examples, and Terratest parity ([#28](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/issues/28)) ([43f7e6c](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/commit/43f7e6cfd2a767702ec8c9ba0062473e7741e1d4))
+
 ### [1.2.2](https://github.com/zscaler/terraform-azurerm-zpa-private-service-edge-modules/compare/v1.2.1...v1.2.2) (2024-09-26)
 
 
